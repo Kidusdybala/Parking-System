@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings - Smart Parking System</title>
+  <link href="../css/styles.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="min-h-screen flex flex-col bg-parkBlue-900">
+  <!-- Noise Background -->
+  <div class="fixed inset-0 noise-bg pointer-events-none"></div>
+
+  <!-- Header/Navigation -->
+  <header class="sticky top-0 z-30 w-full backdrop-blur-sm border-b border-white/10 bg-parkBlue-900/80">
+    <div class="container flex items-center justify-between h-16">
+      <div class="flex items-center gap-2">
+        <a href="../index.html">
+          <i class="fas fa-parking text-primary text-2xl"></i>
+          <span class="font-bold text-xl">Miki<span class="text-primary">Park</span></span>
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center space-x-4">
+        <span class="text-muted-foreground">Welcome, <span class="text-foreground">John Doe</span></span>
+        <div class="relative group">
+          <button class="h-8 w-8 rounded-full bg-parkBlue-700 flex items-center justify-center hover:bg-primary/80 transition-colors">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="absolute right-0 mt-2 w-48 py-2 bg-card rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+            <a href="#" class="block px-4 py-2 hover:bg-accent text-sm">
+              <i class="fas fa-user-circle mr-2"></i> Profile
+            </a>
+            <a href="account-settings.html" class="block px-4 py-2 hover:bg-accent text-sm">
+              <i class="fas fa-cog mr-2"></i> Settings
+            </a>
+            <div class="border-t border-white/10 my-1"></div>
+            <a href="../index.html" class="block px-4 py-2 hover:bg-accent text-sm text-parkRed">
+              <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button class="md:hidden p-2 rounded-md hover:bg-accent" id="mobile-menu-button">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div class="md:hidden hidden" id="mobile-menu">
+      <div class="container py-2 space-y-1 border-t border-white/10">
+        <div class="flex items-center justify-between py-2">
+          <span class="text-muted-foreground">Welcome, <span class="text-foreground">John Doe</span></span>
+        </div>
+        <a href="#" class="nav-link block">
+          <i class="fas fa-user-circle mr-2"></i> Profile
+        </a>
+        <a href="account-settings.html" class="nav-link block">
+          <i class="fas fa-cog mr-2"></i> Settings
+        </a>
+        <a href="../index.html" class="nav-link block text-parkRed">
+          <i class="fas fa-sign-out-alt mr-2"></i> Logout
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="flex-1 container py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="sticky top-24">
+          <div class="glass-card p-4 mb-4">
+            <!-- User Info -->
+            <div class="flex items-center space-x-4 mb-6">
+              <div class="h-14 w-14 rounded-full bg-parkBlue-700 flex items-center justify-center text-xl">
+                <i class="fas fa-user"></i>
+              </div>
+              <div>
+                <h2 class="font-bold">John Doe</h2>
+                <p class="text-sm text-muted-foreground">john.doe@example.com</p>
+              </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="space-y-1">
+              <a href="user-dashboard.html" class="nav-link flex items-center w-full">
+                <i class="fas fa-th-large w-5"></i>
+                <span class="ml-3">Dashboard</span>
+              </a>
+              <a href="my-reservations.html" class="nav-link flex items-center w-full">
+                <i class="fas fa-ticket-alt w-5"></i>
+                <span class="ml-3">My Reservations</span>
+              </a>
+              <a href="booking-history.html" class="nav-link flex items-center w-full">
+                <i class="fas fa-history w-5"></i>
+                <span class="ml-3">Booking History</span>
+              </a>
+              <a href="payment-methods.html" class="nav-link flex items-center w-full">
+                <i class="fas fa-credit-card w-5"></i>
+                <span class="ml-3">Payment Methods</span>
+              </a>
+              <a href="account-settings.html" class="nav-link active flex items-center w-full">
+                <i class="fas fa-cog w-5"></i>
+                <span class="ml-3">Account Settings</span>
+              </a>
+            </nav>
+          </div>
+
+          <!-- Account Status -->
+          <div class="glass-card p-4">
+            <h3 class="font-bold mb-4">Account Status</h3>
+            <div class="bg-parkBlue-800/50 rounded-lg p-4">
+              <div class="flex items-center mb-4">
+                <div class="h-10 w-10 rounded-full bg-parkGreen/20 flex items-center justify-center mr-3">
+                  <i class="fas fa-check-circle text-parkGreen"></i>
+                </div>
+                <div>
+                  <h4 class="font-medium">Verified Account</h4>
+                  <p class="text-xs text-muted-foreground">Since May 1, 2024</p>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <div class="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                  <i class="fas fa-star text-primary"></i>
+                </div>
+                <div>
+                  <h4 class="font-medium">Regular User</h4>
+                  <p class="text-xs text-muted-foreground">5 more bookings for Silver</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="lg:col-span-3 space-y-8">
+        <!-- Page Title -->
+        <div class="flex justify-between items-center">
+          <h1 class="text-2xl font-bold">Account Settings</h1>
+          <button id="save-all-changes" class="btn btn-primary">
+            <i class="fas fa-save mr-2"></i> Save All Changes
+          </button>
+        </div>
+
+        <!-- Settings Tabs -->
+        <div class="glass-card p-6">
+          <div class="border-b border-white/10 mb-6">
+            <div class="flex space-x-6">
+              <button class="tab-button active" data-tab="profile">
+                <i class="fas fa-user mr-2"></i> Profile
+              </button>
+              <button class="tab-button" data-tab="security">
+                <i class="fas fa-shield-alt mr-2"></i> Security
+              </button>
+              <button class="tab-button" data-tab="notifications">
+                <i class="fas fa-bell mr-2"></i> Notifications
+              </button>
+              <button class="tab-button" data-tab="preferences">
+                <i class="fas fa-sliders-h mr-2"></i> Preferences
+              </button>
+            </div>
+          </div>
+
+          <!-- Profile Tab -->
+          <div class="tab-content active" id="profile-tab">
+            <form id="profile-form">
+              <div class="space-y-6">
+                <!-- Profile Picture -->
+                <div class="flex flex-col items-center sm:flex-row sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
+                  <div class="relative">
+                    <div class="h-24 w-24 rounded-full bg-parkBlue-700 flex items-center justify-center text-3xl">
+                      <i class="fas fa-user"></i>
+                    </div>
+                    <button type="button" class="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center">
+                      <i class="fas fa-camera"></i>
+                    </button>
+                  </div>
+
+                  <div class="flex-1">
+                    <h3 class="font-bold mb-2">Profile Picture</h3>
+                    <p class="text-sm text-muted-foreground mb-4">
+                      Upload a new profile picture. JPG, PNG or GIF, max 2MB.
+                    </p>
+                    <div class="flex space-x-2">
+                      <button type="button" class="btn btn-outline text-sm py-1">
+                        <i class="fas fa-upload mr-1"></i> Upload
+                      </button>
+                      <button type="button" class="btn btn-outline text-sm py-1 text-parkRed">
+                        <i class="fas fa-trash-alt mr-1"></i> Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-6">
+                  <h3 class="font-bold mb-4">Personal Information</h3>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label for="first-name" class="block text-sm font-medium mb-1">First Name</label>
+                      <input type="text" id="first-name" class="input w-full" value="John" required>
+                    </div>
+
+                    <div>
+                      <label for="last-name" class="block text-sm font-medium mb-1">Last Name</label>
+                      <input type="text" id="last-name" class="input w-full" value="Doe" required>
+                    </div>
+                  </div>
+
+                  <div class="mt-4">
+                    <label for="email" class="block text-sm font-medium mb-1">Email Address</label>
+                    <input type="email" id="email" class="input w-full" value="john.doe@example.com" required>
+                    <p class="text-xs text-muted-foreground mt-1">This email will be used for notifications and login</p>
+                  </div>
+
+                  <div class="mt-4">
+                    <label for="phone" class="block text-sm font-medium mb-1">Phone Number</label>
+                    <input type="tel" id="phone" class="input w-full" value="+251 911 234 567" required>
+                  </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-6">
+                  <h3 class="font-bold mb-4">Address Information</h3>
+
+                  <div>
+                    <label for="address" class="block text-sm font-medium mb-1">Street Address</label>
+                    <input type="text" id="address" class="input w-full" value="123 Main Street">
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div>
+                      <label for="city" class="block text-sm font-medium mb-1">City</label>
+                      <input type="text" id="city" class="input w-full" value="Addis Ababa">
+                    </div>
+
+                    <div>
+                      <label for="state" class="block text-sm font-medium mb-1">State/Region</label>
+                      <input type="text" id="state" class="input w-full" value="Addis Ababa">
+                    </div>
+
+                    <div>
+                      <label for="zip" class="block text-sm font-medium mb-1">Postal Code</label>
+                      <input type="text" id="zip" class="input w-full" value="1000">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-6">
+                  <h3 class="font-bold mb-4">Vehicle Information</h3>
+
+                  <div class="bg-parkBlue-800/50 rounded-lg p-4 mb-4">
+                    <div class="flex justify-between items-center">
+                      <div>
+                        <h4 class="font-medium">Toyota Corolla</h4>
+                        <p class="text-sm text-muted-foreground">License: AA-12345</p>
+                      </div>
+                      <div class="flex space-x-2">
+                        <button type="button" class="btn-icon text-muted-foreground hover:text-foreground">
+                          <i class="fas fa-pencil-alt"></i>
+                        </button>
+                        <button type="button" class="btn-icon text-muted-foreground hover:text-parkRed">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button type="button" class="btn btn-outline text-sm">
+                    <i class="fas fa-plus mr-1"></i> Add Vehicle
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Security Tab -->
+          <div class="tab-content hidden" id="security-tab">
+            <form id="security-form">
+              <div class="space-y-6">
+                <div>
+                  <h3 class="font-bold mb-4">Change Password</h3>
+
+                  <div class="space-y-4">
+                    <div>
+                      <label for="current-password" class="block text-sm font-medium mb-1">Current Password</label>
+                      <input type="password" id="current-password" class="input w-full" placeholder="••••••••">
+                    </div>
+
+                    <div>
+                      <label for="new-password" class="block text-sm font-medium mb-1">New Password</label>
+                      <input type="password" id="new-password" class="input w-full" placeholder="••••••••">
+                      <p class="text-xs text-muted-foreground mt-1">Password must be at least 8 characters</p>
+                    </div>
+
+                    <div>
+                      <label for="confirm-password" class="block text-sm font-medium mb-1">Confirm New Password</label>
+                      <input type="password" id="confirm-password" class="input w-full" placeholder="••••••••">
+                    </div>
+
+                    <button type="button" class="btn btn-primary">
+                      Update Password
+                    </button>
+                  </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-6">
+                  <h3 class="font-bold mb-4">Two-Factor Authentication</h3>
+
+                  <div class="flex items-center justify-between mb-4">
+                    <div>
+                      <p class="font-medium">SMS Authentication</p>
+                      <p class="text-sm text-muted-foreground">Receive a code via SMS when signing in</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" checked>
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="font-medium">Authenticator App</p>
+                      <p class="text-sm text-muted-foreground">Use an authenticator app to generate codes</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox">
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-6">
+                  <h3 class="font-bold mb-4">Login Sessions</h3>
+
+                  <div class="bg-parkBlue-800/50 rounded-lg p-4 mb-4">
+                    <div class="flex justify-between items-center">
+                      <div>
+                        <h4 class="font-medium">Current Session</h4>
+                        <p class="text-sm text-muted-foreground">Chrome on Windows • Addis Ababa, Ethiopia</p>
+                        <p class="text-xs text-muted-foreground">Started: May 18, 2024 at 10:23 AM</p>
+                      </div>
+                      <div class="bg-parkGreen/20 px-2 py-1 rounded text-xs text-parkGreen">
+                        Active Now
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="bg-parkBlue-800/50 rounded-lg p-4">
+                    <div class="flex justify-between items-center">
+                      <div>
+                        <h4 class="font-medium">Mobile App</h4>
+                        <p class="text-sm text-muted-foreground">iPhone • Addis Ababa, Ethiopia</p>
+                        <p class="text-xs text-muted-foreground">Last active: May 17, 2024 at 8:45 PM</p>
+                      </div>
+                      <button class="btn-icon text-parkRed">
+                        <i class="fas fa-sign-out-alt"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-6">
+                  <h3 class="font-bold mb-4">Account Actions</h3>
+
+                  <div class="space-y-4">
+                    <button type="button" class="btn btn-outline text-parkRed w-full">
+                      <i class="fas fa-trash-alt mr-2"></i> Delete Account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Notifications Tab -->
+          <div class="tab-content hidden" id="notifications-tab">
+            <form id="notifications-form">
+              <div class="space-y-6">
+                <h3 class="font-bold mb-4">Email Notifications</h3>
+
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="font-medium">Reservation Confirmations</p>
+                      <p class="text-sm text-muted-foreground">Receive emails when you make a reservation</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" checked>
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="font-medium">Reservation Reminders</p>
+                      <p class="text-sm text-muted-foreground">Get reminded 30 minutes before your reservation</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" checked>
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="font-medium">Payment Receipts</p>
+                      <p class="text-sm text-muted-foreground">Receive receipts for your payments</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" checked>
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="font-medium">Promotions and Offers</p>
+                      <p class="text-sm text-muted-foreground">Receive special offers and promotions</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox">
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Preferences Tab -->
+          <div class="tab-content hidden" id="preferences-tab">
+            <form id="preferences-form">
+              <div class="space-y-6">
+                <h3 class="font-bold mb-4">Display Settings</h3>
+
+                <div class="space-y-4">
+                  <div>
+                    <label for="language" class="block text-sm font-medium mb-1">Language</label>
+                    <select id="language" class="input w-full">
+                      <option value="en">English</option>
+                      <option value="am">Amharic</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label for="time-format" class="block text-sm font-medium mb-1">Time Format</label>
+                    <select id="time-format" class="input w-full">
+                      <option value="12">12-hour (AM/PM)</option>
+                      <option value="24">24-hour</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-6">
+                  <h3 class="font-bold mb-4">Parking Preferences</h3>
+
+                  <div class="space-y-4">
+                    <div>
+                      <label for="default-duration" class="block text-sm font-medium mb-1">Default Parking Duration</label>
+                      <select id="default-duration" class="input w-full">
+                        <option value="1">1 hour</option>
+                        <option value="2" selected>2 hours</option>
+                        <option value="3">3 hours</option>
+                        <option value="4">4 hours</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label for="preferred-section" class="block text-sm font-medium mb-1">Preferred Parking Section</label>
+                      <select id="preferred-section" class="input w-full">
+                        <option value="any">No preference</option>
+                        <option value="a" selected>Section A</option>
+                        <option value="b">Section B</option>
+                        <option value="c">Section C</option>
+                        <option value="d">Section D</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 py-6 mt-auto">
+    <div class="container">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center gap-2 mb-4 md:mb-0">
+          <i class="fas fa-parking text-primary text-xl"></i>
+          <span class="font-bold">Smart<span class="text-primary">Park</span></span>
+        </div>
+
+        <p class="text-muted-foreground text-sm">
+          © 2024 SmartPark. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-button').addEventListener('click', function() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Tab navigation
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const tabName = this.getAttribute('data-tab');
+
+        // Hide all tab contents
+        tabContents.forEach(content => {
+          content.classList.add('hidden');
+        });
+
+        // Show the selected tab content
+        document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+
+        // Update active tab button
+        tabButtons.forEach(btn => {
+          btn.classList.remove('active');
+        });
+        this.classList.add('active');
+      });
+    });
+
+    // Save all changes button
+    document.getElementById('save-all-changes').addEventListener('click', function() {
+      alert('Changes saved successfully!');
+    });
+
+    // Navigation links handler
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get all navigation links
+      const navLinks = document.querySelectorAll('.nav-link');
+
+      // Add click event listeners to each link
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href && href !== '#') {
+            window.location.href = href;
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
