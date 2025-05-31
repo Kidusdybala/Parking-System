@@ -68,10 +68,12 @@ A comprehensive parking management system built with Laravel that handles reserv
    ```bash
    git clone https://github.com/kidusdybala/PARKING-SYSTEM.git
    cd PARKING-SYSTEM
+   ```
 
 2. Install PHP dependencies:
    ```bash
    composer install
+   ```
 
 
 3. Install Node.js dependencies:
@@ -79,41 +81,47 @@ A comprehensive parking management system built with Laravel that handles reserv
    npm install
    # or
    yarn install
+```
+
 
 4. Create a .env file:
 ```bash
 cp .env.example .env
-
+```
 5.Generate an application key
+```bash
 php artisan key:generate
-
+```
 6.Configure your database connection in .env:
+```bash
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=your_database_name
 DB_USERNAME=your_database_user
 DB_PASSWORD=your_database_password
-
+```
 7.Run database migrations:
+```bash
 php artisan migrate
-
+```
 Running the Application
-
+```bash
 Development
 php artisan serve
 npm run dev
-
+```
 Production
 
 Use a proper web server pointing to the public directory.
 
 Optimize for production:
+```bash
 composer install --optimize-autoloader --no-dev
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-
+```
 API Endpoints
 
 /dashboard (Admin)
