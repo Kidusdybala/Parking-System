@@ -66,5 +66,80 @@ A comprehensive parking management system built with Laravel that handles reserv
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/username/PARKING-SYSTEM.git
+   git clone https://github.com/kidusdybala/PARKING-SYSTEM.git
    cd PARKING-SYSTEM
+
+2. Install PHP dependencies:
+   ```bash
+   composer install
+
+
+3. Install Node.js dependencies:
+```bash
+   npm install
+   # or
+   yarn install
+
+4. Create a .env file:
+```bash
+cp .env.example .env
+
+5.Generate an application key
+php artisan key:generate
+
+6.Configure your database connection in .env:
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database_name
+DB_USERNAME=your_database_user
+DB_PASSWORD=your_database_password
+
+7.Run database migrations:
+php artisan migrate
+
+Running the Application
+
+Development
+php artisan serve
+npm run dev
+
+Production
+
+Use a proper web server pointing to the public directory.
+
+Optimize for production:
+composer install --optimize-autoloader --no-dev
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+API Endpoints
+
+/dashboard (Admin)
+
+/department/dashboard (Department)
+
+/client/dashboard, /client/map/manage, etc. (Client)
+
+/profile, /wallet, /parking, /chat (Authenticated Users)
+
+Check routes/web.php for a complete list.
+
+Contributing
+
+Fork the repo
+
+Create a new branch: git checkout -b feature/YourFeature
+
+Make changes
+
+Commit: git commit -m "Add your feature"
+
+Push: git push origin feature/YourFeature
+
+Open a Pull Request
+
+License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
