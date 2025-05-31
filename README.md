@@ -122,32 +122,24 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 ```
-API Endpoints
+## API Endpoints
 
-/dashboard (Admin)
+### Authentication
+```bash
+# User login
+curl -X POST http://localhost:8000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password"}''
 
-/department/dashboard (Department)
-
-/client/dashboard, /client/map/manage, etc. (Client)
-
-/profile, /wallet, /parking, /chat (Authenticated Users)
-
-Check routes/web.php for a complete list.
-
-Contributing
-
-Fork the repo
-
-Create a new branch: git checkout -b feature/YourFeature
-
-Make changes
-
-Commit: git commit -m "Add your feature"
-
-Push: git push origin feature/YourFeature
-
-Open a Pull Request
-
+```
+To see all available routes:
+```bash
+php artisan route:list
+```
 License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+# View license file
+cat LICENSE
+```bash
+cat LICENSE
+```
