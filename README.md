@@ -1,13 +1,5 @@
 # PARKING-SYSTEM
 
-*Effortless Parking Solutions for Modern Living*
-
-![Last Commit](https://img.shields.io/github/last-commit/username/PARKING-SYSTEM)
-![Language Count](https://img.shields.io/github/languages/count/username/PARKING-SYSTEM)
-![Top Language](https://img.shields.io/github/languages/top/username/PARKING-SYSTEM)
-![License](https://img.shields.io/github/license/username/PARKING-SYSTEM)
-
----
 
 ## Built With
 
@@ -111,7 +103,7 @@ Development
 php artisan serve
 npm run dev
 ```
-Production
+## Production
 
 Use a proper web server pointing to the public directory.
 
@@ -136,7 +128,7 @@ To see all available routes:
 ```bash
 php artisan route:list
 ```
-License
+## License
 
 # View license file
 cat LICENSE
