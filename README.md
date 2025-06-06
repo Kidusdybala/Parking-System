@@ -44,7 +44,7 @@ A comprehensive parking management system built with Laravel that handles reserv
   - Payment processing
   - Receipt generation
 - **User Profile Management**: Personal information and preferences
--
+
 ## Technologies Used
 
 - **Backend**: Laravel 11, PHP 8.2.2
