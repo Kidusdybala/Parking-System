@@ -44,11 +44,10 @@ A comprehensive parking management system built with Laravel that handles reserv
   - Payment processing
   - Receipt generation
 - **User Profile Management**: Personal information and preferences
-- **Real-time Chat**: Support communication
-
+-
 ## Technologies Used
 
-- **Backend**: Laravel 10, PHP 8.2
+- **Backend**: Laravel 11, PHP 8.2.2
 - **Frontend**: JavaScript, Alpine.js, Tailwind CSS
 - **Database**: MySQL
 - **Build Tool**: Vite
