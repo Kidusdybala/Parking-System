@@ -1,100 +1,166 @@
-# MikiPark - Smart Parking Management System
+# 🅿️ MikiPark - Smart Parking Management System
 
-A comprehensive parking management system built with **Laravel 11** (Backend API) and **React 18** (Frontend) using **JWT Authentication**.
+<div align="center">
 
-## 🚀 Features
+![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-Authentication-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
 
-### 🔐 Authentication & Authorization
-- JWT-based authentication system
-- Role-based access control (User/Admin)
-- Secure token management with automatic refresh
+**A modern, full-stack parking management system with real-time spot tracking, comprehensive admin dashboard, and seamless user experience.**
 
-### 🅿️ Parking Management
-- Real-time parking spot availability
-- Interactive parking spot visualization
-- Location-based spot filtering
-- Hourly rate management
+[🚀 Live Demo](#) • [📖 Documentation](#-api-documentation) • [🐛 Report Bug](https://github.com/Kidusdybala/Parking-System/issues) • [✨ Request Feature](https://github.com/Kidusdybala/Parking-System/issues)
 
-### 📅 Reservation System
-- Create, update, and cancel reservations
-- Real-time conflict detection
-- Automatic cost calculation
-- Balance-based payment system
+</div>
 
-### 👤 User Management
-- User profile management
-- Balance management system
-- Reservation history and statistics
-- Password change functionality
+---
 
-### 🛠️ Admin Panel
-- Complete system dashboard
-- Parking spot management (CRUD)
-- User management
-- Reservation monitoring
-- Revenue tracking
+## 📋 Table of Contents
+
+- [✨ Features](#-features)
+- [🏗️ Technology Stack](#️-technology-stack)
+- [📋 Prerequisites](#-prerequisites)
+- [🚀 Quick Start](#-quick-start)
+- [🔑 Default Credentials](#-default-credentials)
+- [📚 API Documentation](#-api-documentation)
+- [🎨 Screenshots](#-screenshots)
+- [🚀 Deployment](#-deployment)
+- [🧪 Testing](#-testing)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+
+---
+
+## ✨ Features
+
+### 🔐 **Authentication & Security**
+- **JWT-based Authentication** - Secure token-based auth system
+- **Role-based Access Control** - User/Admin role management
+- **Automatic Token Refresh** - Seamless session management
+- **Password Security** - Bcrypt hashing with validation
+
+### 🅿️ **Parking Management**
+- **Real-time Spot Tracking** - Live availability updates
+- **Interactive Spot Visualization** - Visual parking layout
+- **Location-based Filtering** - Find spots by section/area
+- **Dynamic Pricing** - Flexible hourly rate management
+- **Spot Status Management** - Available/Occupied/Maintenance states
+
+### 📅 **Reservation System**
+- **Smart Booking** - Conflict detection and prevention
+- **Automatic Cost Calculation** - Real-time pricing updates
+- **Balance-based Payments** - Integrated wallet system
+- **Reservation History** - Complete booking records
+- **Status Tracking** - Reserved/Active/Completed states
+
+### 👤 **User Management**
+- **Profile Management** - Complete user settings
+- **Balance System** - Add funds and track spending
+- **Booking History** - Detailed reservation records
+- **Usage Statistics** - Personal parking analytics
+- **Account Security** - Password change functionality
+
+### 🛠️ **Admin Dashboard**
+- **System Analytics** - Revenue, usage, and performance metrics
+- **User Management** - Complete CRUD operations
+- **Spot Management** - Add, edit, delete parking spots
+- **Payment History** - Transaction tracking and reporting
+- **Reservation Oversight** - Monitor all bookings
+- **Real-time Statistics** - Live system metrics
+
+---
 
 ## 🏗️ Technology Stack
 
-### Backend
-- **Laravel 11** - PHP Framework
-- **JWT Auth** - Authentication
-- **MySQL** - Database
-- **RESTful API** - Architecture
+<table>
+<tr>
+<td>
 
-### Frontend
-- **React 18** - UI Framework
-- **React Router** - Navigation
-- **Axios** - HTTP Client
-- **Tailwind CSS** - Styling
-- **Vite** - Build Tool
+### **Backend**
+- **Laravel 11** - Modern PHP framework
+- **MySQL 8.0** - Reliable database system
+- **JWT Authentication** - Secure token management
+- **RESTful API** - Clean API architecture
+- **Eloquent ORM** - Database abstraction
+
+</td>
+<td>
+
+### **Frontend**
+- **React 18** - Modern UI framework
+- **React Router v6** - Client-side routing
+- **Axios** - HTTP client library
+- **Tailwind CSS** - Utility-first styling
+- **Vite** - Fast build tool
+
+</td>
+</tr>
+</table>
+
+---
 
 ## 📋 Prerequisites
 
-- PHP >= 8.2
-- Composer
-- Node.js >= 18
-- MySQL >= 8.0
-- Git
+Before you begin, ensure you have the following installed:
 
-## 🚀 Installation & Setup
+- **PHP** >= 8.2
+- **Composer** >= 2.0
+- **Node.js** >= 18.0
+- **MySQL** >= 8.0
+- **Git** >= 2.0
 
-### 1. Clone Repository
+---
+
+## 🚀 Quick Start
+
+### 1️⃣ **Clone Repository**
 ```bash
-git clone <repository-url>
+git clone https://github.com/Kidusdybala/Parking-System.git
 cd Parking-System
 ```
 
-### 2. Backend Setup
+### 2️⃣ **Backend Setup**
 ```bash
 # Install PHP dependencies
 composer install
 
-# Copy environment file
+# Copy environment configuration
 cp .env.example .env
 
 # Generate application key
 php artisan key:generate
 
-# Generate JWT secret
+# Generate JWT secret key
 php artisan jwt:secret
+```
 
-# Configure database in .env file
+### 3️⃣ **Database Configuration**
+Edit your `.env` file with your database credentials:
+```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=parking_system
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
+```
+
+### 4️⃣ **Database Setup**
+```bash
+# Create database
+mysql -u root -p -e "CREATE DATABASE parking_system;"
 
 # Run migrations
 php artisan migrate
 
-# Seed database (optional)
+# Seed database with sample data
 php artisan db:seed
+
+# Create admin user
+php artisan db:seed --class=AdminUserSeeder
 ```
 
-### 3. Frontend Setup
+### 5️⃣ **Frontend Setup**
 ```bash
 # Install Node.js dependencies
 npm install
@@ -106,231 +172,261 @@ npm run build
 npm run dev
 ```
 
-### 4. Start Application
+### 6️⃣ **Start Application**
 ```bash
-# Start Laravel server
+# Start Laravel development server
 php artisan serve
 
-# The application will be available at:
+# Application will be available at:
 # http://127.0.0.1:8000
 ```
 
+---
+
 ## 🔑 Default Credentials
 
-### Admin Account
-- **Email:** admin@admin.com
-- **Password:** admin123
-
-### Test User Account
-- **Email:** test@test.com
-- **Password:** password
-
-## 📚 API Documentation
-
-### Authentication Endpoints
+### 👨‍💼 **Admin Account**
 ```
-POST /api/auth/register    - User registration
-POST /api/auth/login       - User login
-GET  /api/auth/me          - Get current user
-POST /api/auth/logout      - User logout
-POST /api/auth/refresh     - Refresh token
+Email: admin@parking.com
+Password: admin123
 ```
 
-### Parking Spots Endpoints
+### 👤 **Test User Account**
 ```
-GET    /api/parking-spots           - Get all parking spots
-GET    /api/parking-spots/{id}      - Get specific parking spot
-GET    /api/parking-spots/available/list - Get available spots
-POST   /api/parking-spots           - Create parking spot (Admin)
-PUT    /api/parking-spots/{id}      - Update parking spot (Admin)
-DELETE /api/parking-spots/{id}      - Delete parking spot (Admin)
+Email: user@example.com
+Password: password
 ```
 
-### Reservations Endpoints
-```
-GET    /api/reservations            - Get user's reservations
-GET    /api/reservations/all        - Get all reservations (Admin)
-GET    /api/reservations/{id}       - Get specific reservation
-POST   /api/reservations            - Create reservation
-PUT    /api/reservations/{id}       - Update reservation
-POST   /api/reservations/{id}/cancel - Cancel reservation
-POST   /api/reservations/{id}/complete - Complete reservation (Admin)
-```
-
-### Users Endpoints
-```
-GET    /api/users                   - Get all users (Admin)
-GET    /api/users/{id}              - Get specific user
-PUT    /api/users/{id}              - Update user
-DELETE /api/users/{id}              - Delete user (Admin)
-POST   /api/users/{id}/add-balance  - Add balance to user
-PUT    /api/users/{id}/password     - Update user password
-```
-
-## 🎨 Frontend Features
-
-### User Interface
-- **Responsive Design** - Works on all devices
-- **Glass Morphism UI** - Modern, beautiful interface
-- **Dark Theme** - Easy on the eyes
-- **Interactive Components** - Smooth user experience
-
-### Pages
-- **Homepage** - Landing page for unauthenticated users
-- **Dashboard** - User dashboard with parking overview
-- **Parking** - Browse and reserve parking spots
-- **Reservations** - Manage user reservations
-- **Profile** - User profile and settings
-- **Admin Panel** - Complete system management
-
-## 🔧 Configuration
-
-### Environment Variables
-```env
-# Application
-APP_NAME="MikiPark"
-APP_ENV=production
-APP_KEY=base64:...
-APP_DEBUG=false
-APP_URL=http://your-domain.com
-
-# Database
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=parking_system
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
-
-# JWT
-JWT_SECRET=your_jwt_secret
-JWT_TTL=60
-JWT_REFRESH_TTL=20160
-
-# Mail (optional)
-MAIL_MAILER=smtp
-MAIL_HOST=your-smtp-host
-MAIL_PORT=587
-MAIL_USERNAME=your-email
-MAIL_PASSWORD=your-password
-```
-
-## 🚀 Deployment
-
-### Production Deployment
-
-1. **Server Requirements**
-   - PHP 8.2+
-   - MySQL 8.0+
-   - Nginx/Apache
-   - SSL Certificate
-
-2. **Deployment Steps**
-   ```bash
-   # Clone repository
-   git clone <repository-url>
-   cd Parking-System
-   
-   # Install dependencies
-   composer install --optimize-autoloader --no-dev
-   npm install
-   
-   # Build frontend
-   npm run build
-   
-   # Configure environment
-   cp .env.example .env
-   # Edit .env with production settings
-   
-   # Generate keys
-   php artisan key:generate
-   php artisan jwt:secret
-   
-   # Run migrations
-   php artisan migrate --force
-   
-   # Optimize Laravel
-   php artisan config:cache
-   php artisan route:cache
-   php artisan view:cache
-   
-   # Set permissions
-   chmod -R 755 storage bootstrap/cache
-   ```
-
-3. **Web Server Configuration**
-   - Point document root to `public/` directory
-   - Configure URL rewriting for Laravel
-   - Set up SSL certificate
-
-## 🧪 Testing
-
-### Run Tests
-```bash
-# Backend tests
-php artisan test
-
-# Frontend tests (if configured)
-npm test
-```
-
-### Test Accounts
-Use the default credentials provided above for testing different user roles.
-
-## 📱 Mobile Support
-
-The application is fully responsive and works seamlessly on:
-- Desktop computers
-- Tablets
-- Mobile phones
-- All modern browsers
-
-## 🔒 Security Features
-
-- JWT token-based authentication
-- CSRF protection
-- SQL injection prevention
-- XSS protection
-- Role-based access control
-- Secure password hashing
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **JWT Secret Not Set**
-   ```bash
-   php artisan jwt:secret
-   ```
-
-2. **Permission Errors**
-   ```bash
-   chmod -R 755 storage bootstrap/cache
-   ```
-
-3. **Database Connection Issues**
-   - Check database credentials in `.env`
-   - Ensure MySQL service is running
-
-4. **Frontend Build Issues**
-   ```bash
-   rm -rf node_modules package-lock.json
-   npm install
-   npm run build
-   ```
-
-## 📞 Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the documentation
-- Review the API endpoints
-
-## 📄 License
-
-This project is licensed under the MIT License.
+> **Note:** Change these credentials in production!
 
 ---
 
-**MikiPark** - Smart Parking Management System
+## 📚 API Documentation
+
+### 🔐 **Authentication Endpoints**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/auth/register` | User registration |
+| `POST` | `/api/auth/login` | User login |
+| `GET` | `/api/auth/me` | Get current user |
+| `POST` | `/api/auth/logout` | User logout |
+| `POST` | `/api/auth/refresh` | Refresh JWT token |
+
+### 🅿️ **Parking Spots Endpoints**
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/api/parking-spots` | Get all parking spots | ✅ |
+| `GET` | `/api/parking-spots/{id}` | Get specific spot | ✅ |
+| `GET` | `/api/parking-spots/available/list` | Get available spots | ✅ |
+| `POST` | `/api/parking-spots` | Create parking spot | 👨‍💼 Admin |
+| `PUT` | `/api/parking-spots/{id}` | Update parking spot | 👨‍💼 Admin |
+| `DELETE` | `/api/parking-spots/{id}` | Delete parking spot | 👨‍💼 Admin |
+
+### 📅 **Reservations Endpoints**
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/api/reservations` | Get user's reservations | ✅ |
+| `GET` | `/api/reservations/all` | Get all reservations | 👨‍💼 Admin |
+| `POST` | `/api/reservations` | Create reservation | ✅ |
+| `POST` | `/api/reservations/{id}/start` | Start parking session | ✅ |
+| `POST` | `/api/reservations/{id}/end` | End parking session | ✅ |
+| `POST` | `/api/reservations/{id}/cancel` | Cancel reservation | ✅ |
+
+### 👥 **Users Endpoints**
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/api/users` | Get all users | 👨‍💼 Admin |
+| `GET` | `/api/users/{id}` | Get specific user | ✅ |
+| `PUT` | `/api/users/{id}` | Update user profile | ✅ |
+| `POST` | `/api/users/{id}/add-balance` | Add balance to user | 👨‍💼 Admin |
+| `DELETE` | `/api/users/{id}` | Delete user | 👨‍💼 Admin |
+
+---
+
+## 🎨 Screenshots
+
+<div align="center">
+
+### 🏠 **Homepage**
+*Clean, modern landing page with clear call-to-action*
+
+### 📊 **User Dashboard**
+*Comprehensive overview of parking activity and statistics*
+
+### 🅿️ **Parking Spots**
+*Interactive parking layout with real-time availability*
+
+### 👨‍💼 **Admin Dashboard**
+*Complete system management with analytics and controls*
+
+</div>
+
+---
+
+## 🚀 Deployment
+
+### 🌐 **Production Deployment**
+
+#### **Server Requirements**
+- Ubuntu 20.04+ / CentOS 8+
+- PHP 8.2+ with extensions
+- MySQL 8.0+
+- Nginx/Apache
+- SSL Certificate
+
+#### **Deployment Steps**
+```bash
+# 1. Clone and setup
+git clone https://github.com/Kidusdybala/Parking-System.git
+cd Parking-System
+
+# 2. Install dependencies
+composer install --optimize-autoloader --no-dev
+npm install && npm run build
+
+# 3. Configure environment
+cp .env.example .env
+# Edit .env with production settings
+
+# 4. Generate keys and migrate
+php artisan key:generate
+php artisan jwt:secret
+php artisan migrate --force
+
+# 5. Optimize for production
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# 6. Set permissions
+chmod -R 755 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+```
+
+#### **Nginx Configuration**
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+    root /var/www/parking-system/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
+```
+
+---
+
+## 🧪 Testing
+
+### **Run Backend Tests**
+```bash
+# Run all tests
+php artisan test
+
+# Run specific test suite
+php artisan test --testsuite=Feature
+
+# Run with coverage
+php artisan test --coverage
+```
+
+### **Test Database**
+```bash
+# Create test database
+mysql -u root -p -e "CREATE DATABASE parking_system_test;"
+
+# Run migrations for testing
+php artisan migrate --env=testing
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
+3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** to the branch (`git push origin feature/AmazingFeature`)
+5. **Open** a Pull Request
+
+### **Development Guidelines**
+- Follow PSR-12 coding standards for PHP
+- Use ESLint and Prettier for JavaScript
+- Write tests for new features
+- Update documentation as needed
+
+---
+
+## 🐛 Troubleshooting
+
+<details>
+<summary><strong>Common Issues & Solutions</strong></summary>
+
+### **JWT Secret Not Set**
+```bash
+php artisan jwt:secret
+```
+
+### **Permission Errors**
+```bash
+sudo chmod -R 755 storage bootstrap/cache
+sudo chown -R www-data:www-data storage bootstrap/cache
+```
+
+### **Database Connection Issues**
+- Verify database credentials in `.env`
+- Ensure MySQL service is running
+- Check firewall settings
+
+### **Frontend Build Issues**
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
+### **CORS Issues**
+- Check `config/cors.php` configuration
+- Verify allowed origins and methods
+
+</details>
+
+---
+
+## 📞 Support
+
+- 📧 **Email**: support@mikipark.com
+- 🐛 **Issues**: [GitHub Issues](https://github.com/Kidusdybala/Parking-System/issues)
+- 📖 **Documentation**: [Wiki](https://github.com/Kidusdybala/Parking-System/wiki)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/Kidusdybala/Parking-System/discussions)
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+
+**⭐ Star this repository if you find it helpful!**
+
+**MikiPark** - Smart Parking Management System  
 Built with ❤️ using Laravel & React
+
+[⬆ Back to Top](#️-mikipark---smart-parking-management-system)
+
+</div>
