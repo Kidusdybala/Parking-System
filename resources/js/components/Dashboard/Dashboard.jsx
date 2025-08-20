@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
@@ -199,7 +199,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <p className="text-sm text-gray-500">Account Balance</p>
-                        <p className="font-medium text-green-600">${user?.balance || 0}</p>
+                        <p className="font-medium text-green-600">{user?.balance || 0} birr</p>
                     </div>
                 </div>
             </div>

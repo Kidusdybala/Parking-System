@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
+use App\Models\EmailVerification;
+use App\Mail\VerificationCodeMail;
 
 class AuthController extends Controller
 {
@@ -40,6 +43,18 @@ class AuthController extends Controller
             'role' => $request->role ?? 1,
             'balance' => 0,
         ]);
+
+        // Generate and send verification code
+        $code = (string) random_int(100000, 999999);
+        EmailVerification::updateOrCreate(
+            ['email' => $user->email],
+            ['code' => $code]
+        );
+        try {
+            Mail::to($user->email)->send(new VerificationCodeMail($code));
+        } catch (\Throwable $e) {
+            // swallow mail failures to not block registration
+        }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 

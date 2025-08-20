@@ -16,7 +16,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         // Check if user is admin
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 3) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. Admin access required.'
@@ -57,7 +57,7 @@ class UserController extends Controller
         $currentUser = $request->user();
 
         // Allow users to view their own profile or admin to view any profile
-        if ($currentUser->role !== 'admin' && $currentUser->id != $id) {
+        if ($currentUser->role !== 3 && $currentUser->id != $id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'
@@ -104,7 +104,7 @@ class UserController extends Controller
         $currentUser = $request->user();
 
         // Allow users to update their own profile or admin to update any profile
-        if ($currentUser->role !== 'admin' && $currentUser->id != $id) {
+        if ($currentUser->role !== 3 && $currentUser->id != $id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'
@@ -168,7 +168,7 @@ class UserController extends Controller
     public function destroy(Request $request, $id)
     {
         // Check if user is admin
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 3) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. Admin access required.'
@@ -221,7 +221,7 @@ class UserController extends Controller
         $currentUser = $request->user();
 
         // Allow users to add to their own balance or admin to add to any balance
-        if ($currentUser->role !== 'admin' && $currentUser->id != $id) {
+        if ($currentUser->role !== 3 && $currentUser->id != $id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'
@@ -315,7 +315,7 @@ class UserController extends Controller
         $currentUser = $request->user();
 
         // Allow users to update their own password or admin to update any password
-        if ($currentUser->role !== 'admin' && $currentUser->id != $id) {
+        if ($currentUser->role !== 3 && $currentUser->id != $id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'

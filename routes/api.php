@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\JWTAuthController;
 use App\Http\Controllers\Api\ParkingController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\VerificationController as ApiVerificationController;
 
 
 
@@ -13,7 +14,14 @@ use App\Http\Controllers\Api\UserController;
 Route::prefix('auth')->group(function () {
     Route::post('/register', [JWTAuthController::class, 'register']);
     Route::post('/login', [JWTAuthController::class, 'login']);
+    Route::post('/forgot-password', [App\Http\Controllers\Api\PasswordResetController::class, 'sendResetCode']);
+    Route::post('/verify-reset-code', [App\Http\Controllers\Api\PasswordResetController::class, 'verifyResetCode']);
+    Route::post('/reset-password', [App\Http\Controllers\Api\PasswordResetController::class, 'resetPassword']);
 });
+
+// Public email verification endpoints (must be public since users can't authenticate until verified)
+Route::post('/verify-email', [ApiVerificationController::class, 'verify']);
+Route::post('/resend-verification', [ApiVerificationController::class, 'resend']);
 
 // Public parking information
 Route::get('/parking-spots', [ParkingController::class, 'index']);
@@ -30,6 +38,8 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/refresh', [JWTAuthController::class, 'refresh']);
         Route::post('/change-password', [JWTAuthController::class, 'changePassword']);
     });
+
+
 
     // User management routes
     Route::prefix('users')->group(function () {
@@ -56,7 +66,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/all', [ReservationController::class, 'all']); // Admin only - all reservations
         Route::get('/statistics', [ReservationController::class, 'statistics']); // Admin only
         Route::get('/{id}', [ReservationController::class, 'show']);
-        Route::post('/', [ReservationController::class, 'store']);
+        Route::post('/', [ReservationController::class, 'store']); // Reserve a spot
+        Route::post('/{id}/start', [ReservationController::class, 'startParking']); // Start parking timer
+        Route::post('/{id}/end', [ReservationController::class, 'endParking']); // End parking and pay
         Route::put('/{id}', [ReservationController::class, 'update']);
         Route::post('/{id}/cancel', [ReservationController::class, 'cancel']);
         Route::post('/{id}/complete', [ReservationController::class, 'complete']); // Admin only

@@ -1,219 +1,132 @@
-import React, { useState } from 'react';
-import { useParkingSpots } from '../hooks';
-import { Card, Button, Modal, Input } from '../components/ui';
-import { getStatusColor, formatCurrency } from '../utils';
+import { useCallback, useMemo, useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
+import { useParkingSpots } from '../hooks/useParkingSpots';
+import ParkingFilters from '../components/Parking/ParkingFilters';
+import ParkingCard from '../components/Parking/ParkingCard';
+import Modal from '../components/ui/Modal';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import { useReservationForm } from '../hooks/useReservationForm';
 
 const ParkingPage = () => {
-    const { spots, filter, loading, error, applyFilter, refreshSpots } = useParkingSpots();
+    const { user } = useAuth();
+    const { allSpots, spots, loading, applyFilter, refreshSpots } = useParkingSpots();
+    const [filters, setFilters] = useState({ location: '', status: 'available', maxRate: '' });
     const [selectedSpot, setSelectedSpot] = useState(null);
-    const [showReserveModal, setShowReserveModal] = useState(false);
+    const [showReservationModal, setShowReservationModal] = useState(false);
 
-    const filterOptions = [
-        { value: 'all', label: 'All Spots', icon: 'fas fa-list' },
-        { value: 'available', label: 'Available', icon: 'fas fa-check-circle' },
-        { value: 'occupied', label: 'Occupied', icon: 'fas fa-times-circle' },
-        { value: 'reserved', label: 'Reserved', icon: 'fas fa-clock' }
-    ];
+    const filteredSpots = useMemo(() => {
+        let data = [...spots];
+        if (filters.location) {
+            data = data.filter(spot => spot.location?.toLowerCase().includes(filters.location.toLowerCase()));
+        }
+        if (filters.status) {
+            data = data.filter(spot => spot.status === filters.status);
+        }
+        if (filters.maxRate) {
+            data = data.filter(spot => parseFloat(spot.hourly_rate) <= parseFloat(filters.maxRate));
+        }
+        return data;
+    }, [spots, filters]);
 
-    const handleReserveSpot = (spot) => {
+    const handleFilterChange = useCallback((key, value) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+        if (key === 'status') {
+            applyFilter(value || 'all');
+        }
+    }, [applyFilter]);
+
+    const resetFilters = useCallback(() => {
+        setFilters({ location: '', status: 'available', maxRate: '' });
+        applyFilter('available');
+    }, [applyFilter]);
+
+    const openReservationModal = useCallback((spot) => {
         setSelectedSpot(spot);
-        setShowReserveModal(true);
-    };
+        setShowReservationModal(true);
+    }, []);
 
-    const handleCloseModal = () => {
-        setShowReserveModal(false);
+    const closeReservationModal = useCallback(() => {
+        setShowReservationModal(false);
         setSelectedSpot(null);
-    };
+    }, []);
 
-    if (loading) {
-        return <LoadingSpinner message="Loading parking spots..." />;
-    }
+    const { form, updateField, submit, submitting, hours, totalCost } = useReservationForm({
+        initialSpot: selectedSpot,
+        onSuccess: () => {
+            closeReservationModal();
+            refreshSpots();
+        }
+    });
+
+    const handleReservation = useCallback(async () => {
+        const result = await submit();
+        if (!result.success) {
+            alert(result.message || 'Failed to create reservation');
+        }
+    }, [submit]);
+
+    const canAfford = useMemo(() => (user?.balance || 0) >= totalCost, [user?.balance, totalCost]);
+
+    if (loading) return <LoadingSpinner />;
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Parking Spots</h1>
-                    <p className="mt-1 text-sm text-gray-600">
-                        Find and reserve your perfect parking spot
-                    </p>
-                </div>
-                <Button 
-                    onClick={refreshSpots}
-                    variant="outline"
-                    icon="fas fa-sync-alt"
-                >
-                    Refresh
-                </Button>
+        <div className="container py-6">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold mb-2">Parking Spots</h1>
+                <p className="text-muted-foreground">Find and reserve your perfect parking spot</p>
             </div>
 
-            {/* Filter Buttons */}
-            <Card>
-                <Card.Content>
-                    <div className="flex flex-wrap gap-3">
-                        {filterOptions.map((option) => (
-                            <Button
-                                key={option.value}
-                                onClick={() => applyFilter(option.value)}
-                                variant={filter === option.value ? 'primary' : 'outline'}
-                                icon={option.icon}
-                                size="small"
-                            >
-                                {option.label}
-                            </Button>
-                        ))}
-                    </div>
-                </Card.Content>
-            </Card>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card>
-                    <Card.Content>
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-blue-600">{spots.length}</div>
-                            <div className="text-sm text-gray-500">Total Spots</div>
-                        </div>
-                    </Card.Content>
-                </Card>
-                <Card>
-                    <Card.Content>
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-green-600">
-                                {spots.filter(s => s.status === 'available').length}
-                            </div>
-                            <div className="text-sm text-gray-500">Available</div>
-                        </div>
-                    </Card.Content>
-                </Card>
-                <Card>
-                    <Card.Content>
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-red-600">
-                                {spots.filter(s => s.status === 'occupied').length}
-                            </div>
-                            <div className="text-sm text-gray-500">Occupied</div>
-                        </div>
-                    </Card.Content>
-                </Card>
-                <Card>
-                    <Card.Content>
-                        <div className="text-center">
-                            <div className="text-2xl font-bold text-yellow-600">
-                                {spots.filter(s => s.status === 'reserved').length}
-                            </div>
-                            <div className="text-sm text-gray-500">Reserved</div>
-                        </div>
-                    </Card.Content>
-                </Card>
-            </div>
+            <ParkingFilters filters={filters} onChange={handleFilterChange} onReset={resetFilters} />
 
             {/* Parking Spots Grid */}
-            {spots.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {spots.map((spot) => (
-                        <Card key={spot.id} hover>
-                            <Card.Content>
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-lg font-medium text-gray-900">
-                                        Spot #{spot.id}
-                                    </h3>
-                                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(spot.status)}`}>
-                                        {spot.status}
-                                    </span>
-                                </div>
-                                
-                                <div className="space-y-2 text-sm text-gray-600 mb-4">
-                                    <div className="flex items-center">
-                                        <i className="fas fa-map-marker-alt mr-2"></i>
-                                        <span>{spot.location || 'Location not specified'}</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <i className="fas fa-car mr-2"></i>
-                                        <span>{spot.type || 'Standard'}</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <i className="fas fa-dollar-sign mr-2"></i>
-                                        <span>{formatCurrency(spot.hourly_rate || 0)}/hour</span>
-                                    </div>
-                                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredSpots.map((spot) => (
+                    <ParkingCard key={spot.id} spot={spot} onReserve={openReservationModal} />
+                ))}
+            </div>
 
-                                {spot.status === 'available' && (
-                                    <Button
-                                        onClick={() => handleReserveSpot(spot)}
-                                        variant="primary"
-                                        size="small"
-                                        className="w-full"
-                                        icon="fas fa-calendar-plus"
-                                    >
-                                        Reserve Spot
-                                    </Button>
-                                )}
-                            </Card.Content>
-                        </Card>
-                    ))}
+            {filteredSpots.length === 0 && (
+                <div className="text-center py-12">
+                    <i className="fas fa-search text-4xl text-muted-foreground mb-4"></i>
+                    <h3 className="text-xl font-semibold mb-2">No parking spots found</h3>
+                    <p className="text-muted-foreground">Try adjusting your filters</p>
                 </div>
-            ) : (
-                <Card>
-                    <Card.Content>
-                        <div className="text-center py-12">
-                            <i className="fas fa-parking text-4xl text-gray-400 mb-4"></i>
-                            <p className="text-gray-500 mb-4">No parking spots found</p>
-                            <Button onClick={refreshSpots} variant="primary">
-                                Refresh Spots
-                            </Button>
-                        </div>
-                    </Card.Content>
-                </Card>
             )}
 
-            {/* Reserve Modal */}
-            <Modal
-                isOpen={showReserveModal}
-                onClose={handleCloseModal}
-                title="Reserve Parking Spot"
-                size="medium"
-            >
+            {/* Reservation Modal */}
+            <Modal isOpen={showReservationModal} onClose={closeReservationModal} title="Reserve Parking Spot">
                 {selectedSpot && (
                     <div className="space-y-4">
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <h4 className="font-medium text-gray-900 mb-2">
-                                Spot #{selectedSpot.id}
-                            </h4>
-                            <div className="text-sm text-gray-600 space-y-1">
-                                <p><strong>Location:</strong> {selectedSpot.location}</p>
-                                <p><strong>Type:</strong> {selectedSpot.type}</p>
-                                <p><strong>Rate:</strong> {formatCurrency(selectedSpot.hourly_rate)}/hour</p>
+                        <div className="bg-parkBlue-800/30 p-4 rounded-lg">
+                            <h3 className="font-semibold">{selectedSpot.spot_number}</h3>
+                            <p className="text-sm text-muted-foreground">{selectedSpot.location}</p>
+                            <p className="text-sm text-primary">${selectedSpot.hourly_rate}/hour</p>
+                        </div>
+                        <Input
+                            label="Start Time"
+                            type="datetime-local"
+                            value={form.start_time}
+                            onChange={(e) => updateField('start_time', e.target.value)}
+                        />
+                        <Input
+                            label="End Time"
+                            type="datetime-local"
+                            value={form.end_time}
+                            onChange={(e) => updateField('end_time', e.target.value)}
+                        />
+                        <div className="bg-parkBlue-800/30 p-4 rounded-lg">
+                            <div className="flex justify-between items-center">
+                                <span className="font-medium">Total Cost:</span>
+                                <span className="text-xl font-bold text-primary">${totalCost}</span>
                             </div>
+                            <p className="text-xs text-muted-foreground mt-1">Current balance: ${user?.balance || 0}</p>
                         </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                            <Input
-                                label="Start Date"
-                                type="datetime-local"
-                                required
-                            />
-                            <Input
-                                label="End Date"
-                                type="datetime-local"
-                                required
-                            />
-                        </div>
-                        
-                        <div className="flex justify-end space-x-3 pt-4">
-                            <Button
-                                onClick={handleCloseModal}
-                                variant="outline"
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="primary"
-                                icon="fas fa-calendar-check"
-                            >
-                                Reserve Spot
+                        <div className="flex gap-3">
+                            <Button variant="outline" className="flex-1" onClick={closeReservationModal} disabled={submitting}>Cancel</Button>
+                            <Button className="flex-1" icon="fas fa-check" onClick={handleReservation} loading={submitting} disabled={!canAfford}>
+                                Confirm Reservation
                             </Button>
                         </div>
                     </div>

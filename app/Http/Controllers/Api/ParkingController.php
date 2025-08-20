@@ -184,7 +184,7 @@ class ParkingController extends Controller
     public function store(Request $request)
     {
         // Check if user is admin
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 3) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. Admin access required.'
@@ -226,7 +226,7 @@ class ParkingController extends Controller
     public function update(Request $request, $id)
     {
         // Check if user is admin
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 3) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. Admin access required.'
@@ -274,7 +274,7 @@ class ParkingController extends Controller
     public function destroy(Request $request, $id)
     {
         // Check if user is admin
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 3) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. Admin access required.'

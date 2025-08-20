@@ -49,7 +49,7 @@ class ReservationController extends Controller
     public function all(Request $request)
     {
         // Check if user is admin
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 3) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. Admin access required.'
@@ -99,7 +99,7 @@ class ReservationController extends Controller
         $query = Reservation::with(['parkingSpot', 'user']);
 
         // If not admin, only show user's own reservations
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 3) {
             $query->where('user_id', $request->user()->id);
         }
 
@@ -119,14 +119,12 @@ class ReservationController extends Controller
     }
 
     /**
-     * Create a new reservation
+     * Create a new reservation (Reserve a spot for immediate use)
      */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'parking_spot_id' => 'required|exists:parking_spots,id',
-            'start_time' => 'required|date|after:now',
-            'end_time' => 'required|date|after:start_time',
         ]);
 
         if ($validator->fails()) {
@@ -146,7 +144,128 @@ class ReservationController extends Controller
             ], 400);
         }
 
-        $startTime = Carbon::parse($request->start_time);
+        // Create reservation for immediate use (no specific end time)
+        $reservation = Reservation::create([
+            'user_id' => $request->user()->id,
+            'parking_spot_id' => $request->parking_spot_id,
+            'start_time' => now(),
+            'end_time' => null, // Will be set when parking starts
+            'status' => 'reserved', // Reserved but not yet parking
+            'total_cost' => 0,
+        ]);
+
+        // Mark spot as reserved
+        $parkingSpot->update([
+            'status' => 'reserved'
+        ]);
+
+        // Load relationships
+        $reservation->load(['parkingSpot', 'user']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Parking spot reserved successfully! You can now start parking.',
+            'data' => $reservation
+        ], 201);
+    }
+
+    /**
+     * Start parking (when user arrives and clicks "Start Parking")
+     */
+    public function startParking(Request $request, $id)
+    {
+        $reservation = Reservation::where('id', $id)
+            ->where('user_id', $request->user()->id)
+            ->where('status', 'reserved')
+            ->first();
+
+        if (!$reservation) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservation not found or already started'
+            ], 404);
+        }
+
+        // Start parking timer
+        $reservation->update([
+            'actual_start_time' => now(),
+            'status' => 'active'
+        ]);
+
+        // Update parking spot status
+        $reservation->parkingSpot->update(['status' => 'occupied']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Parking started! Timer is now running.',
+            'data' => $reservation->load(['parkingSpot', 'user'])
+        ]);
+    }
+
+    /**
+     * End parking and calculate final cost
+     */
+    public function endParking(Request $request, $id)
+    {
+        $reservation = Reservation::where('id', $id)
+            ->where('user_id', $request->user()->id)
+            ->where('status', 'active')
+            ->first();
+
+        if (!$reservation) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Active reservation not found'
+            ], 404);
+        }
+
+        $endTime = now();
+        $startTime = Carbon::parse($reservation->actual_start_time ?? $reservation->start_time);
+        
+        // Calculate duration in hours (minimum 1 hour)
+        $durationHours = max(1, $startTime->diffInHours($endTime, true));
+        $totalCost = $durationHours * 30; // 30 birr per hour
+
+        // Check if user has sufficient balance
+        $user = $request->user();
+        if ($user->balance < $totalCost) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Insufficient balance. Required: ' . $totalCost . ' birr, Available: ' . $user->balance . ' birr'
+            ], 400);
+        }
+
+        // Complete the reservation
+        $reservation->update([
+            'end_time' => $endTime,
+            'actual_end_time' => $endTime,
+            'total_cost' => $totalCost,
+            'status' => 'completed'
+        ]);
+
+        // Deduct cost from user balance
+        $user->decrement('balance', $totalCost);
+
+        // Free up the parking spot
+        $reservation->parkingSpot->update(['status' => 'available']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Parking completed successfully!',
+            'data' => [
+                'reservation' => $reservation->load(['parkingSpot', 'user']),
+                'duration_hours' => $durationHours,
+                'total_cost' => $totalCost,
+                'remaining_balance' => $user->fresh()->balance
+            ]
+        ]);
+    }
+
+    /**
+     * Legacy method - keeping for compatibility but redirecting to new flow
+     */
+    public function storeLegacy(Request $request)
+    {
         $endTime = Carbon::parse($request->end_time);
 
         // Check for conflicting reservations
@@ -213,7 +332,7 @@ class ReservationController extends Controller
         $query = Reservation::query();
 
         // If not admin, only allow updating user's own reservations
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 3) {
             $query->where('user_id', $request->user()->id);
         }
 
@@ -317,7 +436,7 @@ class ReservationController extends Controller
         $query = Reservation::query();
 
         // If not admin, only allow canceling user's own reservations
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 3) {
             $query->where('user_id', $request->user()->id);
         }
 
@@ -370,7 +489,7 @@ class ReservationController extends Controller
     public function complete(Request $request, $id)
     {
         // Check if user is admin
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 3) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. Admin access required.'
@@ -409,7 +528,7 @@ class ReservationController extends Controller
     public function statistics(Request $request)
     {
         // Check if user is admin
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 3) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. Admin access required.'

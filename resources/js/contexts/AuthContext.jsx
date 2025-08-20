@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -72,13 +72,20 @@ export const AuthProvider = ({ children }) => {
                 
                 return { success: true };
             } else {
-                return { success: false, message: response.data.message };
+                return { 
+                    success: false, 
+                    message: response.data.message, 
+                    requiresVerification: response.data.requires_verification, 
+                    email: response.data.email 
+                };
             }
         } catch (error) {
             console.error('Login error:', error);
             return { 
                 success: false, 
-                message: error.response?.data?.message || 'Login failed' 
+                message: error.response?.data?.message || 'Login failed',
+                requiresVerification: error.response?.data?.requires_verification,
+                email: error.response?.data?.email
             };
         }
     };
@@ -93,15 +100,11 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (response.data.success) {
-                const { user, token } = response.data;
-                setUser(user);
-                setToken(token);
-                
-                // Store token in cookie (expires in 7 days)
-                Cookies.set('auth_token', token, { expires: 7 });
-                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                
-                return { success: true };
+                // After register, require email verification; don't auto-login
+                setUser(null);
+                setToken(null);
+                Cookies.remove('auth_token');
+                return { success: true, needsVerification: true, email };
             } else {
                 return { success: false, message: response.data.message };
             }

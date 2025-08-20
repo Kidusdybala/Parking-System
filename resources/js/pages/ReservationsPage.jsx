@@ -1,256 +1,283 @@
-import React, { useState } from 'react';
-import { useReservations } from '../hooks';
-import { Card, Button, Modal, Alert } from '../components/ui';
-import { getStatusColor, formatCurrency, formatDateTime } from '../utils';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useParking } from '../contexts/ParkingContext';
+import axios from 'axios';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
 
 const ReservationsPage = () => {
-    const {
-        reservations,
-        activeReservations,
-        completedReservations,
-        cancelledReservations,
-        loading,
-        error,
-        cancelReservation,
-        refreshReservations
-    } = useReservations();
+    const { user } = useAuth();
+    const { getUserReservations, handleCancelReservation, getReservationTimeRemaining } = useParking();
+    const [reservations, setReservations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState(null);
+    const [filter, setFilter] = useState('all');
+    const [updateTrigger, setUpdateTrigger] = useState(0);
 
-    const [selectedTab, setSelectedTab] = useState('all');
-    const [showCancelModal, setShowCancelModal] = useState(false);
-    const [reservationToCancel, setReservationToCancel] = useState(null);
-    const [cancelLoading, setCancelLoading] = useState(false);
-
-    const tabs = [
-        { id: 'all', label: 'All Reservations', count: reservations.length },
-        { id: 'active', label: 'Active', count: activeReservations.length },
-        { id: 'completed', label: 'Completed', count: completedReservations.length },
-        { id: 'cancelled', label: 'Cancelled', count: cancelledReservations.length }
-    ];
-
-    const getFilteredReservations = () => {
-        switch (selectedTab) {
-            case 'active':
-                return activeReservations;
-            case 'completed':
-                return completedReservations;
-            case 'cancelled':
-                return cancelledReservations;
-            default:
-                return reservations;
-        }
-    };
-
-    const handleCancelClick = (reservation) => {
-        setReservationToCancel(reservation);
-        setShowCancelModal(true);
-    };
-
-    const handleConfirmCancel = async () => {
-        if (!reservationToCancel) return;
-
-        setCancelLoading(true);
-        const result = await cancelReservation(reservationToCancel.id);
+    useEffect(() => {
+        fetchReservations();
         
-        if (result.success) {
-            setShowCancelModal(false);
-            setReservationToCancel(null);
+        // Listen for parking spot updates to refresh reservations
+        const handleParkingSpotsUpdate = () => {
+            fetchReservations();
+        };
+
+        window.addEventListener('parkingSpotsUpdated', handleParkingSpotsUpdate);
+
+        // Set up timer to update reservation countdowns every 10 seconds
+        const timer = setInterval(() => {
+            setUpdateTrigger(prev => prev + 1);
+        }, 10000);
+
+        return () => {
+            window.removeEventListener('parkingSpotsUpdated', handleParkingSpotsUpdate);
+            clearInterval(timer);
+        };
+    }, []);
+
+    const fetchReservations = async () => {
+        try {
+            setLoading(true);
+            // Get reservations from the parking context
+            const userReservations = getUserReservations();
+            setReservations(userReservations);
+        } catch (error) {
+            console.error('Error fetching reservations:', error);
+        } finally {
+            setLoading(false);
         }
-        setCancelLoading(false);
     };
 
-    const handleCloseModal = () => {
-        setShowCancelModal(false);
-        setReservationToCancel(null);
+    const handleCancelReservationLocal = async (reservationId) => {
+        if (!confirm('Are you sure you want to cancel this reservation?')) {
+            return;
+        }
+
+        try {
+            setActionLoading(reservationId);
+            // Find the reservation to get the spot ID
+            const reservation = reservations.find(r => r.id === reservationId);
+            if (reservation && reservation.status === 'active') {
+                // Use the parking context to cancel the reservation
+                handleCancelReservation(reservation.parking_spot.id);
+                alert('Reservation cancelled successfully!');
+                fetchReservations(); // Refresh the list
+            }
+        } catch (error) {
+            alert('Failed to cancel reservation');
+        } finally {
+            setActionLoading(null);
+        }
     };
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'active': return 'text-green-400 bg-green-500/20 border-green-500/30';
+            case 'completed': return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
+            case 'cancelled': return 'text-red-400 bg-red-500/20 border-red-500/30';
+            default: return 'text-gray-400 bg-gray-500/20 border-gray-500/30';
+        }
+    };
+
+    const getStatusIcon = (status) => {
+        switch (status) {
+            case 'active': return 'fas fa-clock';
+            case 'completed': return 'fas fa-check-circle';
+            case 'cancelled': return 'fas fa-times-circle';
+            default: return 'fas fa-question-circle';
+        }
+    };
+
+    const formatDateTime = (dateString) => {
+        return new Date(dateString).toLocaleString();
+    };
+
+    const isReservationCancellable = (reservation) => {
+        return reservation.status === 'active' && new Date(reservation.start_time) > new Date();
+    };
+
+    const isReservationActive = (reservation) => {
+        const now = new Date();
+        const start = new Date(reservation.start_time);
+        const end = new Date(reservation.end_time);
+        return reservation.status === 'active' && start <= now && end > now;
+    };
+
+    const getTimeRemaining = (endTime) => {
+        const now = new Date();
+        const end = new Date(endTime);
+        const diff = end - now;
+        
+        if (diff <= 0) return 'Expired';
+        
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        
+        return `${hours}h ${minutes}m remaining`;
+    };
+
+    const filteredReservations = reservations.filter(reservation => {
+        if (filter === 'all') return true;
+        return reservation.status === filter;
+    });
 
     if (loading) {
-        return <LoadingSpinner message="Loading reservations..." />;
+        return <LoadingSpinner />;
     }
 
-    const filteredReservations = getFilteredReservations();
-
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">My Reservations</h1>
-                    <p className="mt-1 text-sm text-gray-600">
-                        Manage your parking reservations
-                    </p>
-                </div>
-                <Button 
-                    onClick={refreshReservations}
-                    variant="outline"
-                    icon="fas fa-sync-alt"
-                >
-                    Refresh
-                </Button>
+        <div className="container py-6">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold mb-2">My Reservations</h1>
+                <p className="text-muted-foreground">Manage your parking reservations</p>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {tabs.map((tab) => (
-                    <Card key={tab.id} hover>
-                        <Card.Content>
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-blue-600">{tab.count}</div>
-                                <div className="text-sm text-gray-500">{tab.label}</div>
+            {/* Filter Tabs */}
+            <div className="glass-card p-6 mb-8">
+                <div className="flex flex-wrap gap-2">
+                    {[
+                        { key: 'all', label: 'All', count: reservations.length },
+                        { key: 'active', label: 'Active', count: reservations.filter(r => r.status === 'active').length },
+                        { key: 'completed', label: 'Completed', count: reservations.filter(r => r.status === 'completed').length },
+                        { key: 'cancelled', label: 'Cancelled', count: reservations.filter(r => r.status === 'cancelled').length }
+                    ].map(tab => (
+                        <button
+                            key={tab.key}
+                            onClick={() => setFilter(tab.key)}
+                            className={`px-4 py-2 rounded-md font-medium transition-all ${
+                                filter === tab.key
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-parkBlue-800/40 hover:bg-parkBlue-800/60'
+                            }`}
+                        >
+                            {tab.label} ({tab.count})
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Reservations List */}
+            <div className="space-y-6">
+                {filteredReservations.map((reservation) => (
+                    <div key={reservation.id} className="glass-card p-6">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <h3 className="text-xl font-semibold">
+                                        {reservation.parking_spot.spot_number}
+                                    </h3>
+                                    <span className={`badge ${getStatusColor(reservation.status)}`}>
+                                        <i className={`${getStatusIcon(reservation.status)} mr-1`}></i>
+                                        {reservation.status}
+                                    </span>
+                                    {isReservationActive(reservation) && (
+                                        <span className="badge badge-available">
+                                            <i className="fas fa-car mr-1"></i>
+                                            Currently Parked
+                                        </span>
+                                    )}
+                                    {reservation.status === 'active' && !isReservationActive(reservation) && (
+                                        <span className="badge text-yellow-600 bg-yellow-100 border-yellow-300">
+                                            <i className="fas fa-clock mr-1"></i>
+                                            Expires in {getReservationTimeRemaining(reservation.parking_spot.id)} min
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <div className="flex items-center text-muted-foreground mb-2">
+                                            <i className="fas fa-map-marker-alt mr-2"></i>
+                                            <span>{reservation.parking_spot.location}</span>
+                                        </div>
+                                        <div className="flex items-center text-muted-foreground mb-2">
+                                            <i className="fas fa-calendar mr-2"></i>
+                                            <span>Started: {formatDateTime(reservation.start_time)}</span>
+                                        </div>
+                                        {reservation.end_time && (
+                                            <div className="flex items-center text-muted-foreground">
+                                                <i className="fas fa-calendar-check mr-2"></i>
+                                                <span>Ended: {formatDateTime(reservation.end_time)}</span>
+                                            </div>
+                                        )}
+                                        {!reservation.end_time && reservation.status === 'active' && (
+                                            <div className="flex items-center text-blue-600">
+                                                <i className="fas fa-clock mr-2"></i>
+                                                <span>Currently Active</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        {reservation.end_time && (
+                                            <>
+                                                <div className="flex items-center text-muted-foreground mb-2">
+                                                    <i className="fas fa-dollar-sign mr-2"></i>
+                                                    <span>Total Cost: {reservation.total_cost} Birr</span>
+                                                </div>
+                                                <div className="flex items-center text-muted-foreground mb-2">
+                                                    <i className="fas fa-clock mr-2"></i>
+                                                    <span>
+                                                        Duration: {Math.ceil(
+                                                            (new Date(reservation.end_time) - new Date(reservation.start_time)) / (1000 * 60 * 60)
+                                                        )} hours
+                                                    </span>
+                                                </div>
+                                            </>
+                                        )}
+                                        {!reservation.end_time && reservation.status === 'active' && (
+                                            <div className="flex items-center text-muted-foreground mb-2">
+                                                <i className="fas fa-info-circle mr-2"></i>
+                                                <span>Cost will be calculated when parking ends</span>
+                                            </div>
+                                        )}
+
+                                    </div>
+                                </div>
                             </div>
-                        </Card.Content>
-                    </Card>
+
+                            <div className="flex flex-col gap-2 lg:w-auto">
+                                {isReservationCancellable(reservation) && (
+                                    <button
+                                        onClick={() => handleCancelReservationLocal(reservation.id)}
+                                        disabled={actionLoading === reservation.id}
+                                        className="btn btn-danger"
+                                    >
+                                        {actionLoading === reservation.id ? (
+                                            <i className="fas fa-spinner fa-spin mr-2"></i>
+                                        ) : (
+                                            <i className="fas fa-times mr-2"></i>
+                                        )}
+                                        {actionLoading === reservation.id ? 'Cancelling...' : 'Cancel'}
+                                    </button>
+                                )}
+                                
+                                {reservation.status === 'completed' && (
+                                    <button className="btn btn-outline">
+                                        <i className="fas fa-receipt mr-2"></i>
+                                        View Receipt
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 ))}
             </div>
 
-            {/* Tab Navigation */}
-            <Card>
-                <Card.Content>
-                    <div className="flex flex-wrap gap-2">
-                        {tabs.map((tab) => (
-                            <Button
-                                key={tab.id}
-                                onClick={() => setSelectedTab(tab.id)}
-                                variant={selectedTab === tab.id ? 'primary' : 'outline'}
-                                size="small"
-                            >
-                                {tab.label} ({tab.count})
-                            </Button>
-                        ))}
-                    </div>
-                </Card.Content>
-            </Card>
-
-            {/* Reservations List */}
-            {filteredReservations.length > 0 ? (
-                <div className="space-y-4">
-                    {filteredReservations.map((reservation) => (
-                        <Card key={reservation.id}>
-                            <Card.Content>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="flex-shrink-0">
-                                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                <i className="fas fa-parking text-blue-600 text-xl"></i>
-                                            </div>
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex items-center space-x-2 mb-1">
-                                                <h3 className="text-lg font-medium text-gray-900">
-                                                    Parking Spot #{reservation.parking_spot_id}
-                                                </h3>
-                                                <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(reservation.status)}`}>
-                                                    {reservation.status}
-                                                </span>
-                                            </div>
-                                            <div className="text-sm text-gray-600 space-y-1">
-                                                <div className="flex items-center">
-                                                    <i className="fas fa-calendar mr-2"></i>
-                                                    <span>
-                                                        {formatDateTime(reservation.start_time)} - {formatDateTime(reservation.end_time)}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <i className="fas fa-dollar-sign mr-2"></i>
-                                                    <span>Total Cost: {formatCurrency(reservation.total_cost || 0)}</span>
-                                                </div>
-                                                {reservation.notes && (
-                                                    <div className="flex items-center">
-                                                        <i className="fas fa-sticky-note mr-2"></i>
-                                                        <span>{reservation.notes}</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        {reservation.status === 'active' && (
-                                            <Button
-                                                onClick={() => handleCancelClick(reservation)}
-                                                variant="danger"
-                                                size="small"
-                                                icon="fas fa-times"
-                                            >
-                                                Cancel
-                                            </Button>
-                                        )}
-                                        <Button
-                                            variant="outline"
-                                            size="small"
-                                            icon="fas fa-eye"
-                                        >
-                                            View Details
-                                        </Button>
-                                    </div>
-                                </div>
-                            </Card.Content>
-                        </Card>
-                    ))}
+            {filteredReservations.length === 0 && (
+                <div className="text-center py-12">
+                    <i className="fas fa-calendar-times text-4xl text-muted-foreground mb-4"></i>
+                    <h3 className="text-xl font-semibold mb-2">No reservations found</h3>
+                    <p className="text-muted-foreground mb-6">
+                        {filter === 'all' 
+                            ? "You haven't made any reservations yet" 
+                            : `No ${filter} reservations found`
+                        }
+                    </p>
+                    <a href="/parking" className="btn btn-primary">
+                        <i className="fas fa-plus mr-2"></i>
+                        Make a Reservation
+                    </a>
                 </div>
-            ) : (
-                <Card>
-                    <Card.Content>
-                        <div className="text-center py-12">
-                            <i className="fas fa-calendar-times text-4xl text-gray-400 mb-4"></i>
-                            <p className="text-gray-500 mb-4">
-                                {selectedTab === 'all' 
-                                    ? 'No reservations found' 
-                                    : `No ${selectedTab} reservations found`
-                                }
-                            </p>
-                            <Button variant="primary" icon="fas fa-plus">
-                                Make a Reservation
-                            </Button>
-                        </div>
-                    </Card.Content>
-                </Card>
             )}
-
-            {/* Cancel Confirmation Modal */}
-            <Modal
-                isOpen={showCancelModal}
-                onClose={handleCloseModal}
-                title="Cancel Reservation"
-                size="small"
-            >
-                {reservationToCancel && (
-                    <div className="space-y-4">
-                        <Alert type="warning">
-                            Are you sure you want to cancel this reservation? This action cannot be undone.
-                        </Alert>
-                        
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <h4 className="font-medium text-gray-900 mb-2">
-                                Reservation Details
-                            </h4>
-                            <div className="text-sm text-gray-600 space-y-1">
-                                <p><strong>Spot:</strong> #{reservationToCancel.parking_spot_id}</p>
-                                <p><strong>Start:</strong> {formatDateTime(reservationToCancel.start_time)}</p>
-                                <p><strong>End:</strong> {formatDateTime(reservationToCancel.end_time)}</p>
-                                <p><strong>Cost:</strong> {formatCurrency(reservationToCancel.total_cost)}</p>
-                            </div>
-                        </div>
-                        
-                        <div className="flex justify-end space-x-3">
-                            <Button
-                                onClick={handleCloseModal}
-                                variant="outline"
-                                disabled={cancelLoading}
-                            >
-                                Keep Reservation
-                            </Button>
-                            <Button
-                                onClick={handleConfirmCancel}
-                                variant="danger"
-                                loading={cancelLoading}
-                                icon="fas fa-times"
-                            >
-                                {cancelLoading ? 'Cancelling...' : 'Cancel Reservation'}
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </Modal>
         </div>
     );
 };

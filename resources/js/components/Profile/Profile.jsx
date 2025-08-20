@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 
@@ -71,7 +71,10 @@ const Profile = () => {
                 amount: parseFloat(balanceAmount)
             });
             if (response.data.success) {
-                updateUser({ ...user, balance: response.data.user.balance });
+                updateUser({ 
+                    ...user, 
+                    balance: response.data.data.new_balance 
+                });
                 setMessage(`Successfully added $${balanceAmount} to your balance!`);
                 setBalanceAmount('');
             }

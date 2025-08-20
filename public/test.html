@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MikiPark API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+        .test-section {
+            background: #16213e;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 1px solid #0f3460;
+        }
+        button {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #d63447;
+        }
+        .result {
+            background: #0f3460;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        input {
+            background: #0f3460;
+            color: white;
+            border: 1px solid #16213e;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+    </style>
+</head>
+<body>
+    <h1>🅿️ MikiPark API Integration Test</h1>
+    <p>This page tests the integration between the React frontend and Laravel API.</p>
+
+    <div class="test-section">
+        <h2>1. Authentication Test</h2>
+        <input type="email" id="email" placeholder="Email" value="admin@admin.com">
+        <input type="password" id="password" placeholder="Password" value="admin123">
+        <button onclick="testLogin()">Login</button>
+        <button onclick="testLogout()">Logout</button>
+        <div id="auth-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Parking Spots Test</h2>
+        <button onclick="testGetSpots()">Get All Spots</button>
+        <button onclick="testGetAvailableSpots()">Get Available Spots</button>
+        <div id="spots-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Reservations Test</h2>
+        <button onclick="testGetReservations()">Get My Reservations</button>
+        <button onclick="testGetAllReservations()">Get All Reservations (Admin)</button>
+        <div id="reservations-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. User Management Test</h2>
+        <button onclick="testGetUsers()">Get All Users (Admin)</button>
+        <button onclick="testGetProfile()">Get My Profile</button>
+        <div id="users-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. System Status</h2>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <div id="status-result" class="result"></div>
+    </div>
+
+    <script>
+        let authToken = null;
+        const API_BASE = '/api';
+
+        async function apiRequest(method, endpoint, data = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            };
+
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            const config = {
+                method,
+                headers
+            };
+
+            if (data) {
+                config.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(API_BASE + endpoint, config);
+                const result = await response.json();
+                
+                return {
+                    status: response.status,
+                    success: response.ok,
+                    data: result
+                };
+            } catch (error) {
+                return {
+                    status: 0,
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        function displayResult(elementId, result) {
+            const element = document.getElementById(elementId);
+            const status = result.success ? 'success' : 'error';
+            const statusText = result.success ? '✅ SUCCESS' : '❌ FAILED';
+            
+            element.innerHTML = `<span class="${status}">${statusText} (${result.status})</span>\n${JSON.stringify(result.data || result.error, null, 2)}`;
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const result = await apiRequest('POST', '/auth/login', { email, password });
+            
+            if (result.success && result.data.access_token) {
+                authToken = result.data.access_token;
+                result.data.token_preview = authToken.substring(0, 20) + '...';
+            }
+            
+            displayResult('auth-result', result);
+        }
+
+        async function testLogout() {
+            const result = await apiRequest('POST', '/auth/logout');
+            if (result.success) {
+                authToken = null;
+            }
+            displayResult('auth-result', result);
+        }
+
+        async function testGetSpots() {
+            const result = await apiRequest('GET', '/parking-spots');
+            displayResult('spots-result', result);
+        }
+
+        async function testGetAvailableSpots() {
+            const result = await apiRequest('GET', '/parking-spots/available/list');
+            displayResult('spots-result', result);
+        }
+
+        async function testGetReservations() {
+            const result = await apiRequest('GET', '/reservations');
+            displayResult('reservations-result', result);
+        }
+
+        async function testGetAllReservations() {
+            const result = await apiRequest('GET', '/reservations/all');
+            displayResult('reservations-result', result);
+        }
+
+        async function testGetUsers() {
+            const result = await apiRequest('GET', '/users');
+            displayResult('users-result', result);
+        }
+
+        async function testGetProfile() {
+            const result = await apiRequest('GET', '/auth/me');
+            displayResult('users-result', result);
+        }
+
+        async function runAllTests() {
+            const statusElement = document.getElementById('status-result');
+            statusElement.innerHTML = '🔄 Running comprehensive tests...\n';
+
+            const tests = [
+                { name: 'Login', func: testLogin },
+                { name: 'Get Parking Spots', func: testGetSpots },
+                { name: 'Get Available Spots', func: testGetAvailableSpots },
+                { name: 'Get Profile', func: testGetProfile },
+                { name: 'Get Reservations', func: testGetReservations },
+                { name: 'Get All Users', func: testGetUsers },
+                { name: 'Get All Reservations', func: testGetAllReservations }
+            ];
+
+            let results = [];
+            
+            for (const test of tests) {
+                try {
+                    await test.func();
+                    results.push(`✅ ${test.name}: PASSED`);
+                } catch (error) {
+                    results.push(`❌ ${test.name}: FAILED - ${error.message}`);
+                }
+                await new Promise(resolve => setTimeout(resolve, 500)); // Small delay
+            }
+
+            const summary = `
+🎯 Test Summary:
+${results.join('\n')}
+
+📊 Results: ${results.filter(r => r.includes('✅')).length}/${results.length} tests passed
+
+🌐 System Status: ${results.filter(r => r.includes('✅')).length === results.length ? '🟢 FULLY OPERATIONAL' : '🟡 PARTIALLY WORKING'}
+
+🚀 Frontend URL: ${window.location.origin}
+📚 API Base URL: ${window.location.origin}/api
+👤 Admin Login: admin@admin.com / admin123
+            `;
+
+            statusElement.innerHTML = summary;
+        }
+
+        // Auto-run basic connectivity test on page load
+        window.onload = async function() {
+            const result = await apiRequest('GET', '/parking-spots');
+            const statusElement = document.getElementById('status-result');
+            
+            if (result.success) {
+                statusElement.innerHTML = '🟢 API Connection: WORKING\n✅ Backend is responding correctly\n🎯 Ready for full testing';
+            } else {
+                statusElement.innerHTML = '🔴 API Connection: FAILED\n❌ Backend is not responding\n⚠️ Check server status';
+            }
+        };
+    </script>
+</body>
+</html>

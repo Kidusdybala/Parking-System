@@ -1,169 +1,137 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Layout = ({ children }) => {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
     const { user, logout } = useAuth();
     const location = useLocation();
-
-    const navigation = [
-        { name: 'Dashboard', href: '/dashboard', icon: 'fas fa-tachometer-alt' },
-        { name: 'Parking Spots', href: '/parking', icon: 'fas fa-parking' },
-        { name: 'Reservations', href: '/reservations', icon: 'fas fa-calendar-check' },
-        { name: 'Profile', href: '/profile', icon: 'fas fa-user' },
-    ];
-
-    const adminNavigation = [
-        { name: 'Admin Dashboard', href: '/admin', icon: 'fas fa-cogs' },
-    ];
 
     const handleLogout = async () => {
         await logout();
     };
 
-    const isActive = (href) => location.pathname === href;
+    const toggleMobileMenu = () => {
+        setMobileMenuOpen(!mobileMenuOpen);
+    };
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Mobile sidebar */}
-            <div className={`fixed inset-0 flex z-40 md:hidden ${sidebarOpen ? '' : 'hidden'}`}>
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)}></div>
-                <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-                    <div className="absolute top-0 right-0 -mr-12 pt-2">
-                        <button
-                            type="button"
-                            className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                            onClick={() => setSidebarOpen(false)}
-                        >
-                            <i className="fas fa-times h-6 w-6 text-white"></i>
-                        </button>
+        <div className="min-h-screen flex flex-col bg-parkBlue-900">
+            {/* Noise Background */}
+            <div className="fixed inset-0 noise-bg pointer-events-none"></div>
+            
+            {/* Header/Navigation */}
+            <header className="sticky top-0 z-30 w-full backdrop-blur-sm border-b border-white/10 bg-parkBlue-900/80">
+                <div className="container flex items-center justify-between h-16">
+                    <div className="flex items-center gap-2">
+                        <Link to="/dashboard">
+                            <i className="fas fa-parking text-primary text-2xl"></i>
+                            <span className="font-bold text-xl">Miki<span className="text-primary">Park</span></span>
+                        </Link>
                     </div>
-                    <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-                        <div className="flex-shrink-0 flex items-center px-4">
-                            <h1 className="text-xl font-bold text-blue-600">MikiPark</h1>
-                        </div>
-                        <nav className="mt-5 px-2 space-y-1">
-                            {navigation.map((item) => (
-                                <Link
-                                    key={item.name}
-                                    to={item.href}
-                                    className={`${
-                                        isActive(item.href)
-                                            ? 'bg-blue-100 text-blue-900'
-                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                                    } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
+                    
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center space-x-4">
+                        <span className="text-muted-foreground">
+                            Welcome, <span className="text-foreground">{user?.name || 'User'}</span>
+                        </span>
+                        <div className="relative group">
+                            <button 
+                                className="h-8 w-8 rounded-full bg-parkBlue-700 flex items-center justify-center hover:bg-primary/80 transition-colors"
+                                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                            >
+                                <i className="fas fa-user"></i>
+                            </button>
+                            <div className={`absolute right-0 mt-2 w-48 py-2 bg-card rounded-md shadow-lg transition-all z-50 ${
+                                userDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                            }`}>
+                                <Link 
+                                    to="/profile" 
+                                    className="block px-4 py-2 hover:bg-accent text-sm"
+                                    onClick={() => setUserDropdownOpen(false)}
                                 >
-                                    <i className={`${item.icon} mr-4 flex-shrink-0 h-6 w-6`}></i>
-                                    {item.name}
+                                    <i className="fas fa-user-circle mr-2"></i> Profile
                                 </Link>
-                            ))}
-                            {user?.role === 3 && adminNavigation.map((item) => (
-                                <Link
-                                    key={item.name}
-                                    to={item.href}
-                                    className={`${
-                                        isActive(item.href)
-                                            ? 'bg-blue-100 text-blue-900'
-                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                                    } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
+                                <Link 
+                                    to="/profile" 
+                                    className="block px-4 py-2 hover:bg-accent text-sm"
+                                    onClick={() => setUserDropdownOpen(false)}
                                 >
-                                    <i className={`${item.icon} mr-4 flex-shrink-0 h-6 w-6`}></i>
-                                    {item.name}
+                                    <i className="fas fa-cog mr-2"></i> Settings
                                 </Link>
-                            ))}
-                        </nav>
-                    </div>
-                </div>
-            </div>
-
-            {/* Desktop sidebar */}
-            <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-                <div className="flex-1 flex flex-col min-h-0 border-r border-gray-200 bg-white">
-                    <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-                        <div className="flex items-center flex-shrink-0 px-4">
-                            <h1 className="text-xl font-bold text-blue-600">MikiPark</h1>
-                        </div>
-                        <nav className="mt-5 flex-1 px-2 bg-white space-y-1">
-                            {navigation.map((item) => (
-                                <Link
-                                    key={item.name}
-                                    to={item.href}
-                                    className={`${
-                                        isActive(item.href)
-                                            ? 'bg-blue-100 text-blue-900'
-                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                                    } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
-                                >
-                                    <i className={`${item.icon} mr-3 flex-shrink-0 h-6 w-6`}></i>
-                                    {item.name}
-                                </Link>
-                            ))}
-                            {user?.role === 3 && adminNavigation.map((item) => (
-                                <Link
-                                    key={item.name}
-                                    to={item.href}
-                                    className={`${
-                                        isActive(item.href)
-                                            ? 'bg-blue-100 text-blue-900'
-                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                                    } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
-                                >
-                                    <i className={`${item.icon} mr-3 flex-shrink-0 h-6 w-6`}></i>
-                                    {item.name}
-                                </Link>
-                            ))}
-                        </nav>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main content */}
-            <div className="md:pl-64 flex flex-col flex-1">
-                <div className="sticky top-0 z-10 md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-gray-200">
-                    <button
-                        type="button"
-                        className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-                        onClick={() => setSidebarOpen(true)}
-                    >
-                        <i className="fas fa-bars h-6 w-6"></i>
-                    </button>
-                </div>
-
-                {/* Top bar */}
-                <div className="bg-white shadow">
-                    <div className="px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between h-16">
-                            <div className="flex items-center">
-                                <h2 className="text-lg font-semibold text-gray-900">
-                                    Welcome back, {user?.name}!
-                                </h2>
-                            </div>
-                            <div className="flex items-center space-x-4">
-                                <span className="text-sm text-gray-500">
-                                    Balance: ${user?.balance || 0}
-                                </span>
-                                <button
+                                <div className="border-t border-white/10 my-1"></div>
+                                <button 
                                     onClick={handleLogout}
-                                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                                    className="block w-full text-left px-4 py-2 hover:bg-accent text-sm text-parkRed"
                                 >
-                                    <i className="fas fa-sign-out-alt mr-2"></i>
-                                    Logout
+                                    <i className="fas fa-sign-out-alt mr-2"></i> Logout
                                 </button>
                             </div>
                         </div>
                     </div>
+                    
+                    {/* Mobile Menu Button */}
+                    <button 
+                        className="md:hidden p-2 rounded-md hover:bg-accent" 
+                        onClick={toggleMobileMenu}
+                    >
+                        <i className="fas fa-bars"></i>
+                    </button>
                 </div>
-
-                {/* Page content */}
-                <main className="flex-1">
-                    <div className="py-6">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                            {children}
+                
+                {/* Mobile Navigation Menu */}
+                <div className={`md:hidden ${mobileMenuOpen ? '' : 'hidden'}`}>
+                    <div className="container py-2 space-y-1 border-t border-white/10">
+                        <div className="flex items-center justify-between py-2">
+                            <span className="text-muted-foreground">
+                                Welcome, <span className="text-foreground">{user?.name || 'User'}</span>
+                            </span>
                         </div>
+                        <Link 
+                            to="/profile" 
+                            className="nav-link block"
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            <i className="fas fa-user-circle mr-2"></i> Profile
+                        </Link>
+                        <Link 
+                            to="/profile" 
+                            className="nav-link block"
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            <i className="fas fa-cog mr-2"></i> Settings
+                        </Link>
+                        <button 
+                            onClick={handleLogout}
+                            className="nav-link block text-parkRed w-full text-left"
+                        >
+                            <i className="fas fa-sign-out-alt mr-2"></i> Logout
+                        </button>
                     </div>
-                </main>
-            </div>
+                </div>
+            </header>
+
+            {/* Main Content */}
+            <main className="flex-1">
+                {children}
+            </main>
+
+            {/* Footer */}
+            <footer className="border-t border-white/10 py-6">
+                <div className="container">
+                    <div className="flex flex-col md:flex-row justify-between items-center">
+                        <div className="flex items-center gap-2 mb-4 md:mb-0">
+                            <i className="fas fa-parking text-primary text-xl"></i>
+                            <span className="font-bold">Smart<span className="text-primary">Park</span></span>
+                        </div>
+
+                        <p className="text-muted-foreground text-sm">
+                            © {new Date().getFullYear()} SmartPark. All rights reserved.
+                        </p>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 };

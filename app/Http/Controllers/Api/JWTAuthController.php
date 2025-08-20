@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Support\Facades\Mail;
+use App\Models\EmailVerification;
+use App\Mail\VerificationCodeMail;
 
 class JWTAuthController extends Controller
 {
@@ -38,6 +41,18 @@ class JWTAuthController extends Controller
             'role' => 1, // Default user role
             'balance' => 0,
         ]);
+
+        // Generate and send verification code
+        $code = (string) random_int(100000, 999999);
+        EmailVerification::updateOrCreate(
+            ['email' => $user->email],
+            ['code' => $code]
+        );
+        try {
+            Mail::to($user->email)->send(new VerificationCodeMail($code));
+        } catch (\Throwable $e) {
+            // Continue even if mail fails; frontend can trigger resend
+        }
 
         $token = JWTAuth::fromUser($user);
 
@@ -89,7 +104,30 @@ class JWTAuthController extends Controller
             ], 500);
         }
 
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
+
+        // Check if user exists (safety check)
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Authentication failed. User not found.'
+            ], 401);
+        }
+
+        // Enforce email verification before allowing login
+        if (is_null($user->email_verified_at)) {
+            try {
+                JWTAuth::setToken($token)->invalidate();
+            } catch (\Throwable $e) {
+                // ignore invalidation failure
+            }
+            return response()->json([
+                'success' => false,
+                'message' => 'Email not verified. Please verify your email to continue.',
+                'requires_verification' => true,
+                'email' => $user->email,
+            ], 403);
+        }
 
         return response()->json([
             'success' => true,

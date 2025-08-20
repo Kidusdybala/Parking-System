@@ -19,9 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'prevent-back-history' => PreventBackHistory::class,
         ]);
         
-        // Configure API middleware group
+        // Configure API middleware group for JWT
         $middleware->api(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \App\Http\Middleware\Cors::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
