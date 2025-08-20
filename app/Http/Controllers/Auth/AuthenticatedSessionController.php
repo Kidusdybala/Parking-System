@@ -28,10 +28,8 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         return match ($user->role) {
-            0 => redirect()->route('dashboard'),
-            1 => redirect()->route('client.parking.manage'),
-            2 => redirect()->route('department'),
-            3 => redirect()->route('admin.history.manage'),
+            'admin' => redirect()->route('dashboard'),
+            'client' => redirect()->route('client.parking.manage'),
             default => redirect('/login')->withErrors(['role' => 'Unauthorized role.']),
         };
     }

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Reservations - Smart Parking System</title>
+  <link href="../css/styles.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="min-h-screen flex flex-col bg-parkBlue-900">
+  <!-- Noise Background -->
+  <div class="fixed inset-0 noise-bg pointer-events-none"></div>
+
+  <!-- Header/Navigation -->
+  <header class="sticky top-0 z-30 w-full backdrop-blur-sm border-b border-white/10 bg-parkBlue-900/80">
+    <div class="container flex items-center justify-between h-16">
+      <div class="flex items-center gap-2">
+        <a href="../index.html">
+          <i class="fas fa-parking text-primary text-2xl"></i>
+          <span class="font-bold text-xl">Smart<span class="text-primary">Park</span></span>
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center space-x-4">
+        <span class="text-muted-foreground">Welcome, <span class="text-foreground">John Doe</span></span>
+        <div class="relative group">
+          <button class="h-8 w-8 rounded-full bg-parkBlue-700 flex items-center justify-center hover:bg-primary/80 transition-colors">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="absolute right-0 mt-2 w-48 py-2 bg-card rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+            <a href="#" class="nav-link block px-4 py-2 hover:bg-accent text-sm">
+              <i class="fas fa-user-circle mr-2"></i> Profile
+            </a>
+            <a href="account-settings.html" class="nav-link block px-4 py-2 hover:bg-accent text-sm">
+              <i class="fas fa-cog mr-2"></i> Settings
+            </a>
+            <div class="border-t border-white/10 my-1"></div>
+            <a href="../index.html" class="nav-link block px-4 py-2 hover:bg-accent text-sm text-parkRed">
+              <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button class="md:hidden p-2 rounded-md hover:bg-accent" id="mobile-menu-button">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div class="md:hidden hidden" id="mobile-menu">
+      <div class="container py-2 space-y-1 border-t border-white/10">
+        <div class="flex items-center justify-between py-2">
+          <span class="text-muted-foreground">Welcome, <span class="text-foreground">John Doe</span></span>
+        </div>
+        <a href="#" class="nav-link block">
+          <i class="fas fa-user-circle mr-2"></i> Profile
+        </a>
+        <a href="account-settings.html" class="nav-link block">
+          <i class="fas fa-cog mr-2"></i> Settings
+        </a>
+        <a href="../index.html" class="nav-link block text-parkRed">
+          <i class="fas fa-sign-out-alt mr-2"></i> Logout
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="flex-1 container py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="sticky top-24">
+          <div class="glass-card p-4 mb-4">
+            <!-- User Info -->
+            <div class="flex items-center space-x-4 mb-6">
+              <div class="h-14 w-14 rounded-full bg-parkBlue-700 flex items-center justify-center text-xl">
+                <i class="fas fa-user"></i>
+              </div>
+              <div>
+                <h2 class="font-bold">John Doe</h2>
+                <p class="text-sm text-muted-foreground">john.doe@example.com</p>
+              </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="space-y-1">
+              <a href="user-dashboard.html" class="nav-link flex items-center w-full">
+                <i class="fas fa-th-large w-5"></i>
+                <span class="ml-3">Dashboard</span>
+              </a>
+              <a href="my-reservations.html" class="nav-link active flex items-center w-full">
+                <i class="fas fa-ticket-alt w-5"></i>
+                <span class="ml-3">My Reservations</span>
+              </a>
+              <a href="booking-history.html" class="nav-link flex items-center w-full">
+                <i class="fas fa-history w-5"></i>
+                <span class="ml-3">Booking History</span>
+              </a>
+              <a href="payment-methods.html" class="nav-link flex items-center w-full">
+                <i class="fas fa-credit-card w-5"></i>
+                <span class="ml-3">Payment Methods</span>
+              </a>
+              <a href="account-settings.html" class="nav-link flex items-center w-full">
+                <i class="fas fa-cog w-5"></i>
+                <span class="ml-3">Account Settings</span>
+              </a>
+            </nav>
+          </div>
+
+          <!-- Balance Card -->
+          <div class="glass-card p-4">
+            <h3 class="font-bold mb-4">Account Balance</h3>
+            <div class="bg-parkBlue-800/50 rounded-lg p-6 text-center">
+              <div class="text-3xl font-bold text-primary mb-2">350 Birr</div>
+              <p class="text-sm text-muted-foreground mb-4">Available Balance</p>
+              <button class="btn btn-primary w-full">
+                <i class="fas fa-plus-circle mr-2"></i> Top Up Balance
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="lg:col-span-3 space-y-8">
+        <!-- Page Title -->
+        <div class="flex justify-between items-center">
+          <h1 class="text-2xl font-bold">My Reservations</h1>
+          <button class="btn btn-primary">
+            <i class="fas fa-plus mr-2"></i> New Reservation
+          </button>
+        </div>
+
+        <!-- Active Reservations -->
+        <div class="glass-card p-6">
+          <h2 class="text-xl font-bold mb-6">Active Reservations</h2>
+
+          <!-- Active Reservation Card -->
+          <div class="bg-parkBlue-800/50 rounded-lg p-6 mb-6 border-l-4 border-primary">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+              <div>
+                <div class="flex items-center">
+                  <div class="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                    <i class="fas fa-car text-primary"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-lg">Bole Medhanialem Parking</h3>
+                    <p class="text-sm text-muted-foreground">Section A, Slot 12</p>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 md:mt-0">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-parkGreen/20 text-parkGreen">
+                  <i class="fas fa-check-circle mr-1"></i> Active
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div>
+                <p class="text-sm text-muted-foreground">Check-in Time</p>
+                <p class="font-medium">Today, 10:30 AM</p>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground">Check-out Time</p>
+                <p class="font-medium">Today, 12:30 PM</p>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground">Duration</p>
+                <p class="font-medium">2 hours</p>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:justify-between gap-4">
+              <div class="flex items-center">
+                <div class="h-10 w-10 rounded-full bg-parkBlue-700 flex items-center justify-center mr-3">
+                  <i class="fas fa-car"></i>
+                </div>
+                <div>
+                  <p class="font-medium">Toyota Corolla</p>
+                  <p class="text-sm text-muted-foreground">License: AA-12345</p>
+                </div>
+              </div>
+              <div class="flex space-x-2">
+                <button class="btn btn-outline">
+                  <i class="fas fa-edit mr-2"></i> Modify
+                </button>
+                <button class="btn btn-primary">
+                  <i class="fas fa-check-circle mr-2"></i> Check Out
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Reservation Card -->
+          <div class="bg-parkBlue-800/50 rounded-lg p-6 border-l-4 border-parkYellow">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+              <div>
+                <div class="flex items-center">
+                  <div class="h-10 w-10 rounded-full bg-parkYellow/20 flex items-center justify-center mr-3">
+                    <i class="fas fa-clock text-parkYellow"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-lg">Meskel Square Parking</h3>
+                    <p class="text-sm text-muted-foreground">Section B, Slot 05</p>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 md:mt-0">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-parkYellow/20 text-parkYellow">
+                  <i class="fas fa-clock mr-1"></i> Upcoming
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div>
+                <p class="text-sm text-muted-foreground">Check-in Time</p>
+                <p class="font-medium">Tomorrow, 09:00 AM</p>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground">Check-out Time</p>
+                <p class="font-medium">Tomorrow, 11:00 AM</p>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground">Duration</p>
+                <p class="font-medium">2 hours</p>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:justify-between gap-4">
+              <div class="flex items-center">
+                <div class="h-10 w-10 rounded-full bg-parkBlue-700 flex items-center justify-center mr-3">
+                  <i class="fas fa-car"></i>
+                </div>
+                <div>
+                  <p class="font-medium">Toyota Corolla</p>
+                  <p class="text-sm text-muted-foreground">License: AA-12345</p>
+                </div>
+              </div>
+              <div class="flex space-x-2">
+                <button class="btn btn-outline text-parkRed">
+                  <i class="fas fa-times-circle mr-2"></i> Cancel
+                </button>
+                <button class="btn btn-outline">
+                  <i class="fas fa-edit mr-2"></i> Modify
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 py-6 mt-auto">
+    <div class="container">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center gap-2 mb-4 md:mb-0">
+          <i class="fas fa-parking text-primary text-xl"></i>
+          <span class="font-bold">Smart<span class="text-primary">Park</span></span>
+        </div>
+
+        <p class="text-muted-foreground text-sm">
+          © 2024 SmartPark. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-button').addEventListener('click', function() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Navigation links handler
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get all navigation links
+      const navLinks = document.querySelectorAll('.nav-link');
+
+      // Add click event listeners to each link
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href && href !== '#') {
+            window.location.href = href;
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -23,7 +23,10 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'auth' => \App\Http\Middleware\Authenticate::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'prevent-back-history' => \App\Http\Middleware\PreventBackHistory::class, // ✅ CORRECT LOCATION
-        // Add other route middleware as needed
+        'prevent-back-history' => \App\Http\Middleware\PreventBackHistory::class,
+        'rolemanager' => \App\Http\Middleware\RoleManager::class,
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'client' => \App\Http\Middleware\Client::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
 }

@@ -16,9 +16,11 @@ class ParkingSpotsSeeder extends Seeder
 
         for ($i = 1; $i <= 100; $i++) {
             $spots[] = [
+                'spot_number' => 'P' . str_pad($i, 3, '0', STR_PAD_LEFT), // P001, P002, etc.
                 'name' => 'Spot ' . $i,
-                'price_per_hour' => 30, // Same price for all
-                'is_reserved' => false,
+                'location' => 'Level ' . ceil($i / 20) . ' - Section ' . chr(65 + (($i - 1) % 5)), // Level 1-5, Section A-E
+                'hourly_rate' => 30.00, // Same price for all
+                'status' => 'available',
             ];
         }
 

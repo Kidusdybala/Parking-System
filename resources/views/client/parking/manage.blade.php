@@ -81,7 +81,7 @@
                 <p class="text-muted-foreground text-sm">Occupied Slots</p>
                 <p class="text-2xl font-bold" id="occupied-count">
                   {{ $spots->filter(function($spot) {
-                    return $spot->is_reserved && $spot->reservation && $spot->reservation->parked_at;
+                    return $spot->is_reserved && $spot->currentReservation && $spot->currentReservation->parked_at;
                   })->count() }}
                 </p>
               </div>
@@ -97,7 +97,7 @@
                 <p class="text-muted-foreground text-sm">Reserved Slots</p>
                 <p class="text-2xl font-bold" id="reserved-count">
                   {{ $spots->filter(function($spot) {
-                    return $spot->is_reserved && $spot->reservation && !$spot->reservation->parked_at;
+                    return $spot->is_reserved && $spot->currentReservation && !$spot->currentReservation->parked_at;
                   })->count() }}
                 </p>
               </div>
@@ -135,7 +135,7 @@
             <div class="parking-section active" id="section-1">
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 @foreach($spots as $spot)
-                  <div class="glass-card p-4">
+                  <div class="glass-card p-4" id="spot-{{ $spot->id }}">
                     <div class="card-header bg-light text-center py-2">
                       <h5 class="card-title">{{ $spot->name }}</h5>
                     </div>
@@ -143,12 +143,14 @@
                       <p class="card-text">Place ID: {{ $spot->id }}</p>
                       <p class="card-text"><strong>Price: {{ $spot->price_per_hour }} ETB/Hour</strong></p>
 
-                      @if($spot->is_reserved && $spot->reservation)
-                        @if(auth()->user() && auth()->user()->id == $spot->reservation->user_id)
-                          @if($spot->reservation->parked_at)
+                      @if($spot->is_reserved && $spot->currentReservation)
+                        @if(auth()->user() && auth()->user()->id == $spot->currentReservation->user_id)
+                          @if($spot->currentReservation->parked_at)
                             <!-- Only show Finish Parking Button when parked -->
-                            <form action="{{ route('parking.finish', $spot->reservation->id) }}" method="POST" class="d-inline">
+                            <form action="{{ route('parking.finish', $spot->currentReservation->id) }}" method="POST" class="d-inline">
                               @csrf
+                              <input type="hidden" name="page" value="{{ request()->get('page', 1) }}">
+                              <input type="hidden" name="spot_id" value="{{ $spot->id }}">
                               <button class="btn btn-danger w-full">Finish Parking</button>
                             </form>
                           @else
@@ -156,19 +158,23 @@
                             <div id="countdown-{{ $spot->id }}" class="mb-2 text-danger fw-bold"></div>
 
                             <!-- Hidden form for auto-cancel -->
-                            <form id="autoCancelForm-{{ $spot->id }}" action="{{ route('parking.cancel', $spot->reservation->id) }}" method="POST" style="display:none;">
+                            <form id="autoCancelForm-{{ $spot->id }}" action="{{ route('parking.cancel', $spot->currentReservation->id) }}" method="POST" style="display:none;">
                               @csrf
                             </form>
 
                             <!-- Cancel Reservation -->
-                            <form action="{{ route('parking.cancel', $spot->reservation->id) }}" method="POST" class="d-inline mb-2">
+                            <form action="{{ route('parking.cancel', $spot->currentReservation->id) }}" method="POST" class="d-inline mb-2">
                               @csrf
+                              <input type="hidden" name="page" value="{{ request()->get('page', 1) }}">
+                              <input type="hidden" name="spot_id" value="{{ $spot->id }}">
                               <button class="btn btn-secondary w-full">Cancel Reservation</button>
                             </form>
 
                             <!-- Park Now Button -->
-                            <form action="{{ route('parking.park', $spot->reservation->id) }}" method="POST" class="d-inline">
+                            <form action="{{ route('parking.park', $spot->currentReservation->id) }}" method="POST" class="d-inline">
                               @csrf
+                              <input type="hidden" name="page" value="{{ request()->get('page', 1) }}">
+                              <input type="hidden" name="spot_id" value="{{ $spot->id }}">
                               <button class="btn btn-success w-full">Park Now</button>
                             </form>
                           @endif
@@ -179,6 +185,8 @@
                         <!-- Reserve Now -->
                         <form action="{{ route('parking.reserve', $spot->id) }}" method="POST" class="reserve-form">
                           @csrf
+                          <input type="hidden" name="page" value="{{ request()->get('page', 1) }}">
+                          <input type="hidden" name="spot_id" value="{{ $spot->id }}">
                           <button type="submit" class="btn btn-primary w-auto mx-auto px-3 reserve-button">
                             Reserve Now
                           </button>
@@ -187,6 +195,11 @@
                     </div>
                   </div>
                 @endforeach
+              </div>
+              
+              <!-- Pagination Controls -->
+              <div class="d-flex justify-content-center mt-4">
+                {{ $spots->appends(request()->query())->links() }}
               </div>
             </div>
           </div>
@@ -263,7 +276,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       @foreach($spots as $spot)
-        @if($spot->is_reserved && $spot->reservation && auth()->user() && auth()->user()->id == $spot->reservation->user_id && is_null($spot->reservation->parked_at))
+        @if($spot->is_reserved && $spot->currentReservation && auth()->user() && auth()->user()->id == $spot->currentReservation->user_id && is_null($spot->currentReservation->parked_at))
           startCountdown({{ $spot->id }}, 60); // 1 minute = 60 seconds
         @endif
       @endforeach
@@ -337,6 +350,81 @@
           this.action = "{{ route('parking.reserve', '') }}/" + spotId;
           this.submit();
         });
+      }
+
+      // Preserve scroll position and add smooth transitions
+      function preserveScrollPosition() {
+        // Save scroll position before form submission
+        const forms = document.querySelectorAll('form[action*="reserve"], form[action*="cancel"], form[action*="park"]');
+        forms.forEach(form => {
+          form.addEventListener('submit', function() {
+            const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+            sessionStorage.setItem('scrollPosition', scrollPosition);
+            
+            // Add the current spot ID to help identify where we were
+            const spotCard = this.closest('.glass-card');
+            if (spotCard) {
+              const spotId = spotCard.querySelector('p:contains("Place ID:")') || spotCard.querySelector('h5');
+              if (spotId) {
+                sessionStorage.setItem('lastSpotId', spotId.textContent);
+              }
+            }
+          });
+        });
+      }
+
+      // Restore scroll position after page load
+      function restoreScrollPosition() {
+        // Check if we have a specific spot to scroll to (from server)
+        @if(session('scroll_to_spot'))
+          const targetSpotId = {{ session('scroll_to_spot') }};
+          const targetElement = document.getElementById('spot-' + targetSpotId);
+          if (targetElement) {
+            setTimeout(() => {
+              targetElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+              });
+              
+              // Add a subtle highlight effect
+              targetElement.style.transition = 'box-shadow 0.3s ease';
+              targetElement.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.5)';
+              setTimeout(() => {
+                targetElement.style.boxShadow = '';
+              }, 2000);
+            }, 200);
+            return;
+          }
+        @endif
+        
+        // Fallback to saved scroll position
+        const savedPosition = sessionStorage.getItem('scrollPosition');
+        const lastSpotId = sessionStorage.getItem('lastSpotId');
+        
+        if (savedPosition) {
+          // Small delay to ensure page is fully loaded
+          setTimeout(() => {
+            window.scrollTo({
+              top: parseInt(savedPosition),
+              behavior: 'smooth'
+            });
+            
+            // Clear the saved position
+            sessionStorage.removeItem('scrollPosition');
+            sessionStorage.removeItem('lastSpotId');
+          }, 100);
+        }
+      }
+
+      // Initialize scroll preservation
+      preserveScrollPosition();
+      
+      // Restore scroll position when page loads
+      window.addEventListener('load', restoreScrollPosition);
+      
+      // Also try to restore on DOMContentLoaded in case load event already fired
+      if (document.readyState === 'complete') {
+        restoreScrollPosition();
       }
     });
   </script>

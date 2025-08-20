@@ -34,17 +34,22 @@ use Illuminate\Support\Facades\Auth;
 
     // Check if user already has an active reservation
     $existingReservation = Reservation::where('user_id', $userId)
+        ->where('status', 'active')
         ->whereNull('left_at') // Means the user hasn't left yet
         ->first();
 
     if ($existingReservation) {
-        return back();
+        $currentPage = $request->get('page', 1);
+        return redirect()->route('client.parking.manage', ['page' => $currentPage])
+                        ->with('error', 'You already have an active reservation.');
     }
 
     $spot = ParkingSpot::findOrFail($spotId);
 
     if ($spot->is_reserved) {
-        return back();
+        $currentPage = $request->get('page', 1);
+        return redirect()->route('client.parking.manage', ['page' => $currentPage])
+                        ->with('error', 'This parking spot is already reserved.');
     }
 
     // Create reservation
@@ -52,26 +57,38 @@ use Illuminate\Support\Facades\Auth;
         'user_id' => $userId,
         'parking_spot_id' => $spot->id,
         'reserved_at' => now(),
+        'status' => 'active',
     ]);
 
     $spot->update(['is_reserved' => true]);
 
-    return back();
+    // Preserve pagination and scroll position by redirecting to the same page with anchor
+    $currentPage = $request->get('page', 1);
+    $spotId = $request->get('spot_id', $spot->id);
+    return redirect()->route('client.parking.manage', ['page' => $currentPage])
+                    ->with('success', 'Parking spot reserved successfully!')
+                    ->with('scroll_to_spot', $spotId);
 }
 
-        public function park($reservationId)
+        public function park(Request $request, $reservationId)
         {
             $reservation = Reservation::findOrFail($reservationId);
 
             // Check if reservation is expired
             if ($reservation->isExpired()) {
                 $reservation->delete();
-                return back();
+                $currentPage = $request->get('page', 1);
+                return redirect()->route('client.parking.manage', ['page' => $currentPage])
+                                ->with('error', 'Reservation has expired.');
             }
 
             $reservation->update(['parked_at' => now()]);
 
-            return back();
+            $currentPage = $request->get('page', 1);
+            $spotId = $request->get('spot_id', $reservation->parking_spot_id);
+            return redirect()->route('client.parking.manage', ['page' => $currentPage])
+                            ->with('success', 'You have successfully parked!')
+                            ->with('scroll_to_spot', $spotId);
         }
 
         public function leave($reservationId)
@@ -80,16 +97,17 @@ use Illuminate\Support\Facades\Auth;
             $spot = ParkingSpot::find($reservation->parking_spot_id);
 
             if (!$reservation->parked_at) {
-                return back();
+                return back()->with('error', 'You must park first before leaving.');
             }
 
             $reservation->update([
                 'left_at' => now(),
                 'total_price' => $reservation->calculateTotalPrice(),
                 'is_paid' => false,
+                'status' => 'free',
             ]);
 
-            return back();
+            return back()->with('success', 'You have left the parking spot. Please proceed to payment.');
         }
 
         public function pay($reservationId)
@@ -100,7 +118,10 @@ use Illuminate\Support\Facades\Auth;
                 return back();
             }
 
-            $reservation->update(['is_paid' => true]);
+            $reservation->update([
+                'is_paid' => true,
+                'status' => 'free'
+            ]);
 
             // Free the spot
             $reservation->parkingSpot->update(['is_reserved' => false]);
@@ -109,35 +130,45 @@ use Illuminate\Support\Facades\Auth;
         }
         // Make sure to import your model
 
-        public function manage()
+        public function manage(Request $request)
         {
-            $spots = ParkingSpot::with('reservation')->get(); // Ensure reservations are loaded
+            $perPage = 20; // Show 20 spots per page
+            $spots = ParkingSpot::with('currentReservation')
+                               ->paginate($perPage);
 
             return view('client.parking.manage', compact('spots'));
         }
 
-        public function cancel($reservationId)
+        public function cancel(Request $request, $reservationId)
     {
         $reservation = Reservation::findOrFail($reservationId);
 
         if (Auth::id() !== $reservation->user_id) {
-            return back();
+            $currentPage = $request->get('page', 1);
+            return redirect()->route('client.parking.manage', ['page' => $currentPage])
+                            ->with('error', 'Unauthorized action.');
         }
 
         // Free the parking spot
         $reservation->parkingSpot->update(['is_reserved' => false]);
 
-        // Delete reservation
-        $reservation->delete();
+        // Update reservation status to free (cancelled)
+        $reservation->update(['status' => 'free']);
 
-        return back();
+        $currentPage = $request->get('page', 1);
+        $spotId = $request->get('spot_id', $reservation->parking_spot_id);
+        return redirect()->route('client.parking.manage', ['page' => $currentPage])
+                        ->with('success', 'Reservation cancelled successfully.')
+                        ->with('scroll_to_spot', $spotId);
     }
-    public function finishParking($reservationId)
+    public function finishParking(Request $request, $reservationId)
     {
         $reservation = Reservation::findOrFail($reservationId);
 
         if (!$reservation->parked_at) {
-            return back()->with('error', 'You must park before finishing.');
+            $currentPage = $request->get('page', 1);
+            return redirect()->route('client.parking.manage', ['page' => $currentPage])
+                            ->with('error', 'You must park before finishing.');
         }
 
         // Set the leaving time
@@ -145,6 +176,7 @@ use Illuminate\Support\Facades\Auth;
             'left_at' => now(),
             'total_price' => $reservation->calculateTotalPrice(),
             'is_paid' => false,
+            'status' => 'free',
         ]);
 
         // Redirect to the payment confirmation page
@@ -175,6 +207,7 @@ use Illuminate\Support\Facades\Auth;
         // Mark reservation as paid
         $reservation->update([
             'is_paid' => true,
+            'status' => 'free',
         ]);
 
         // Free the parking spot

@@ -1,9 +1,9 @@
-@extends('client.layouts.layout')
+@extends('admin.layouts.layout')
 
-@section('client_page_title')
-Parking System
+@section('admin_page_title')
+Admin Dashboard
 @endsection
 
-@section('client_layout')
-    <h3>Welcome</h3>
+@section('admin_layout')
+    <h3>Welcome to Admin Dashboard</h3>
 @endsection

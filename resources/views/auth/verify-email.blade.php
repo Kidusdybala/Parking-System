@@ -74,7 +74,7 @@
         @endif
 
         <!-- Verification Form -->
-        <form method="POST" action="{{ route('verify-email') }}" id="verification-form">
+        <form method="POST" action="{{ route('custom.verification.verify') }}" id="verification-form">
           @csrf
 
           <!-- Email Input -->
@@ -83,7 +83,7 @@
               <label for="email" class="block text-sm font-medium mb-1">
                 {{ __('Email') }}
               </label>
-              <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+              <input id="email" type="email" name="email" value="{{ old('email', auth()->user()->email ?? '') }}" required autofocus
                      class="input w-full" placeholder="your@email.com">
             </div>
 
@@ -99,7 +99,7 @@
                        data-verification-input required>
                 @endfor
               </div>
-              <input type="hidden" id="verification-code-full" name="verification_code">
+              <input type="hidden" id="verification-code-full" name="code">
             </div>
 
             <div class="flex justify-center">
@@ -116,13 +116,10 @@
         </form>
 
         <div class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
-            <button type="submit" class="btn btn-outline w-full md:w-auto">
-              {{ __('Resend Code') }}
-              <i class="fas fa-paper-plane ml-2"></i>
-            </button>
-          </form>
+          <a href="{{ route('verification.resend', ['email' => old('email', auth()->user()->email ?? '')]) }}" class="btn btn-outline w-full md:w-auto">
+            {{ __('Resend Code') }}
+            <i class="fas fa-paper-plane ml-2"></i>
+          </a>
 
           <form method="POST" action="{{ route('logout') }}">
             @csrf

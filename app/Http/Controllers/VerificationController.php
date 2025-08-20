@@ -74,6 +74,36 @@ class VerificationController extends Controller
     return redirect()->route('login')->with('success', 'Registration successful! Please log in.');
 }
 
+public function resend(Request $request)
+{
+    // Get email from session or request
+    $email = session('email') ?? $request->query('email');
+    
+    if (!$email) {
+        return redirect()->route('verification.code')->with('error', 'Email not found. Please try again.');
+    }
+    
+    // Generate a new verification code
+    $verificationCode = mt_rand(100000, 999999);
+    
+    // Update the verification code in the database
+    EmailVerification::updateOrCreate(
+        ['email' => $email],
+        ['code' => $verificationCode]
+    );
+    
+    // Send the new verification code via email
+    Mail::raw("Your new verification code is: $verificationCode", function ($message) use ($email) {
+        $message->to($email)
+                ->subject('New Email Verification Code');
+    });
+    
+    // Store email in session and redirect
+    session(['email' => $email]);
+    
+    return redirect()->route('verification.code')->with('success', 'A new verification code has been sent to your email.');
+}
+
 }
 
 

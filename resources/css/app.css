@@ -36,11 +36,11 @@
   }
 
   * {
-    @apply border-border selection:bg-parkBlue-500/30 selection:text-white;
+    @apply border-border;
   }
 
   body {
-    @apply bg-parkBlue-900 text-foreground antialiased;
+    @apply bg-background text-foreground antialiased;
   }
 }
 
@@ -74,11 +74,72 @@
   .nav-link.active {
     @apply bg-accent text-accent-foreground;
   }
+
+  .input {
+    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
 }
 
 @layer utilities {
   .noise-bg {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3C/svg%3E");
   }
+  
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* Custom parking system styles */
+.parking-slot {
+  @apply p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 text-center min-h-[80px] flex flex-col items-center justify-center;
+}
+
+.parking-slot-available {
+  @apply border-green-500 bg-green-500/10 hover:bg-green-500/20;
+}
+
+.parking-slot-occupied {
+  @apply border-red-500 bg-red-500/10 cursor-not-allowed;
+}
+
+.parking-slot-reserved {
+  @apply border-yellow-500 bg-yellow-500/10;
+}
+
+.badge {
+  @apply px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.badge-available {
+  @apply bg-green-500/20 text-green-400;
+}
+
+.badge-occupied {
+  @apply bg-red-500/20 text-red-400;
+}
+
+.badge-reserved {
+  @apply bg-yellow-500/20 text-yellow-400;
+}
+
+.btn-danger {
+  @apply bg-red-600 hover:bg-red-700 text-white;
+}
+
+.section-btn {
+  @apply mr-2 mb-2 px-4 py-2 bg-parkBlue-800 hover:bg-parkBlue-700 border border-white/20 rounded-lg transition-colors;
+}
+
+.section-btn.active {
+  @apply bg-primary text-white border-primary;
+}
+
+.parking-section {
+  @apply hidden;
+}
+
+.parking-section.active {
+  @apply block;
 }
 

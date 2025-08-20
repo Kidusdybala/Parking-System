@@ -24,29 +24,24 @@ class RoleManager
 
         $authUserRole = Auth::user()->role;
 
-        // Allow access if roles match
-        switch ($role) {
-            case 'admin':
-                if ($authUserRole == 0) return $next($request);
-                break;
-            case 'client':
-                if ($authUserRole == 1) return $next($request);
-                break;
-            case 'department':
-                if ($authUserRole == 2) return $next($request);
-                break;
-            case 'record':
-                if ($authUserRole == 3) return $next($request);
-                break;
+        // Convert string role to integer for comparison
+        $requiredRole = match ($role) {
+            'admin' => 3,
+            'client' => 1,
+            'record' => 3, // record is also admin level
+            'department' => 2, // if department role exists
+            default => null,
+        };
 
+        // Allow access if roles match
+        if ($authUserRole === $requiredRole) {
+            return $next($request);
         }
 
-        // Redirect users with mismatched roles
+        // Redirect users with mismatched roles based on their actual role
         return match ($authUserRole) {
-            0 => redirect()->route('dashboard'),
-            1 => redirect()->route('client'),
-            2 => redirect()->route('department'),
-            3 => redirect()->route('record'),
+            3 => redirect()->route('dashboard'), // Admin
+            1 => redirect()->route('client.parking.manage'), // Client
             default => redirect()->route('login'),
         };
     }

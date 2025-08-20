@@ -28,7 +28,7 @@
         </a>
 				<ul class="sidebar-nav">
 					<li class="sidebar-item{{request()->routeIs()?'active':''}}">
-						<a class="sidebar-link" href="{{route('record')}}">
+						<a class="sidebar-link" href="{{route('dashboard')}}">
               <i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Dashboard</span>
             </a>
 					</li>
