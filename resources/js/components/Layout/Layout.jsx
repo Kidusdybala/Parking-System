@@ -122,8 +122,10 @@ const Layout = ({ children }) => {
             </header>
 
             {/* Main Content */}
-            <main className="flex-1">
-                {children}
+            <main className="flex-1 min-h-0">
+                <div className="h-full container py-6">
+                    {children}
+                </div>
             </main>
 
             {/* Footer */}

@@ -242,17 +242,10 @@ const DashboardPage = () => {
                                                 </div>
                                                 <div className="flex space-x-2">
                                                     <button 
-                                                        className="btn btn-danger flex-1 text-sm py-1"
+                                                        className="btn btn-danger w-full text-sm py-2"
                                                         onClick={() => handleEndParking(spot.id, showReceipt)}
                                                     >
                                                         <i className="fas fa-stop-circle mr-1"></i> End Parking
-                                                    </button>
-                                                    <button 
-                                                        className="btn btn-secondary text-xs py-1 px-2"
-                                                        onClick={() => manualReleaseSpot(spot.id)}
-                                                        title="Release spot manually"
-                                                    >
-                                                        Release
                                                     </button>
                                                 </div>
                                             </div>
