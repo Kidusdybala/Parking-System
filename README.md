@@ -1,4 +1,4 @@
-# 🅿️ MikiPark - Smart Parking Management System
+# MikiPark - Smart Parking Management System
 
 <div align="center">
 
@@ -9,58 +9,58 @@
 
 **A modern, full-stack parking management system with real-time spot tracking, comprehensive admin dashboard, and seamless user experience.**
 
-[🚀 Live Demo](#) • [📖 Documentation](#-api-documentation) • [🐛 Report Bug](https://github.com/Kidusdybala/Parking-System/issues) • [✨ Request Feature](https://github.com/Kidusdybala/Parking-System/issues)
+[Live Demo](#) • [Documentation](#api-documentation) • [Report Bug](https://github.com/Kidusdybala/Parking-System/issues) • [Request Feature](https://github.com/Kidusdybala/Parking-System/issues)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [✨ Features](#-features)
-- [🏗️ Technology Stack](#️-technology-stack)
-- [📋 Prerequisites](#-prerequisites)
-- [🚀 Quick Start](#-quick-start)
-- [🔑 Default Credentials](#-default-credentials)
-- [📚 API Documentation](#-api-documentation)
-- [🎨 Screenshots](#-screenshots)
-- [🚀 Deployment](#-deployment)
-- [🧪 Testing](#-testing)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Default Credentials](#default-credentials)
+- [API Documentation](#api-documentation)
+- [Screenshots](#screenshots)
+- [Deployment](#deployment)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## ✨ Features
+## Features
 
-### 🔐 **Authentication & Security**
+### Authentication & Security
 - **JWT-based Authentication** - Secure token-based auth system
 - **Role-based Access Control** - User/Admin role management
 - **Automatic Token Refresh** - Seamless session management
 - **Password Security** - Bcrypt hashing with validation
 
-### 🅿️ **Parking Management**
+### Parking Management
 - **Real-time Spot Tracking** - Live availability updates
 - **Interactive Spot Visualization** - Visual parking layout
 - **Location-based Filtering** - Find spots by section/area
 - **Dynamic Pricing** - Flexible hourly rate management
 - **Spot Status Management** - Available/Occupied/Maintenance states
 
-### 📅 **Reservation System**
+### Reservation System
 - **Smart Booking** - Conflict detection and prevention
 - **Automatic Cost Calculation** - Real-time pricing updates
 - **Balance-based Payments** - Integrated wallet system
 - **Reservation History** - Complete booking records
 - **Status Tracking** - Reserved/Active/Completed states
 
-### 👤 **User Management**
+### User Management
 - **Profile Management** - Complete user settings
 - **Balance System** - Add funds and track spending
 - **Booking History** - Detailed reservation records
 - **Usage Statistics** - Personal parking analytics
 - **Account Security** - Password change functionality
 
-### 🛠️ **Admin Dashboard**
+### Admin Dashboard
 - **System Analytics** - Revenue, usage, and performance metrics
 - **User Management** - Complete CRUD operations
 - **Spot Management** - Add, edit, delete parking spots
@@ -70,7 +70,7 @@
 
 ---
 
-## 🏗️ Technology Stack
+## Technology Stack
 
 <table>
 <tr>
@@ -99,7 +99,7 @@
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have the following installed:
 
@@ -111,15 +111,15 @@ Before you begin, ensure you have the following installed:
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### 1️⃣ **Clone Repository**
+### 1. Clone Repository
 ```bash
 git clone https://github.com/Kidusdybala/Parking-System.git
 cd Parking-System
 ```
 
-### 2️⃣ **Backend Setup**
+### 2. Backend Setup
 ```bash
 # Install PHP dependencies
 composer install
@@ -134,7 +134,7 @@ php artisan key:generate
 php artisan jwt:secret
 ```
 
-### 3️⃣ **Database Configuration**
+### 3. Database Configuration
 Edit your `.env` file with your database credentials:
 ```env
 DB_CONNECTION=mysql
@@ -145,7 +145,7 @@ DB_USERNAME=your_username
 DB_PASSWORD=your_password
 ```
 
-### 4️⃣ **Database Setup**
+### 4. Database Setup
 ```bash
 # Create database
 mysql -u root -p -e "CREATE DATABASE parking_system;"
@@ -160,7 +160,7 @@ php artisan db:seed
 php artisan db:seed --class=AdminUserSeeder
 ```
 
-### 5️⃣ **Frontend Setup**
+### 5. Frontend Setup
 ```bash
 # Install Node.js dependencies
 npm install
@@ -172,7 +172,7 @@ npm run build
 npm run dev
 ```
 
-### 6️⃣ **Start Application**
+### 6. Start Application
 ```bash
 # Start Laravel development server
 php artisan serve
@@ -183,15 +183,15 @@ php artisan serve
 
 ---
 
-## 🔑 Default Credentials
+## Default Credentials
 
-### 👨‍💼 **Admin Account**
+### Admin Account
 ```
 Email: admin@parking.com
 Password: admin123
 ```
 
-### 👤 **Test User Account**
+### Test User Account
 ```
 Email: user@example.com
 Password: password
@@ -201,9 +201,9 @@ Password: password
 
 ---
 
-## 📚 API Documentation
+## API Documentation
 
-### 🔐 **Authentication Endpoints**
+### Authentication Endpoints
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/api/auth/register` | User registration |
@@ -212,69 +212,69 @@ Password: password
 | `POST` | `/api/auth/logout` | User logout |
 | `POST` | `/api/auth/refresh` | Refresh JWT token |
 
-### 🅿️ **Parking Spots Endpoints**
+### Parking Spots Endpoints
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `GET` | `/api/parking-spots` | Get all parking spots | ✅ |
-| `GET` | `/api/parking-spots/{id}` | Get specific spot | ✅ |
-| `GET` | `/api/parking-spots/available/list` | Get available spots | ✅ |
-| `POST` | `/api/parking-spots` | Create parking spot | 👨‍💼 Admin |
-| `PUT` | `/api/parking-spots/{id}` | Update parking spot | 👨‍💼 Admin |
-| `DELETE` | `/api/parking-spots/{id}` | Delete parking spot | 👨‍💼 Admin |
+| `GET` | `/api/parking-spots` | Get all parking spots | Required |
+| `GET` | `/api/parking-spots/{id}` | Get specific spot | Required |
+| `GET` | `/api/parking-spots/available/list` | Get available spots | Required |
+| `POST` | `/api/parking-spots` | Create parking spot | Admin |
+| `PUT` | `/api/parking-spots/{id}` | Update parking spot | Admin |
+| `DELETE` | `/api/parking-spots/{id}` | Delete parking spot | Admin |
 
-### 📅 **Reservations Endpoints**
+### Reservations Endpoints
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `GET` | `/api/reservations` | Get user's reservations | ✅ |
-| `GET` | `/api/reservations/all` | Get all reservations | 👨‍💼 Admin |
-| `POST` | `/api/reservations` | Create reservation | ✅ |
-| `POST` | `/api/reservations/{id}/start` | Start parking session | ✅ |
-| `POST` | `/api/reservations/{id}/end` | End parking session | ✅ |
-| `POST` | `/api/reservations/{id}/cancel` | Cancel reservation | ✅ |
+| `GET` | `/api/reservations` | Get user's reservations | Required |
+| `GET` | `/api/reservations/all` | Get all reservations | Admin |
+| `POST` | `/api/reservations` | Create reservation | Required |
+| `POST` | `/api/reservations/{id}/start` | Start parking session | Required |
+| `POST` | `/api/reservations/{id}/end` | End parking session | Required |
+| `POST` | `/api/reservations/{id}/cancel` | Cancel reservation | Required |
 
-### 👥 **Users Endpoints**
+### Users Endpoints
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `GET` | `/api/users` | Get all users | 👨‍💼 Admin |
-| `GET` | `/api/users/{id}` | Get specific user | ✅ |
-| `PUT` | `/api/users/{id}` | Update user profile | ✅ |
-| `POST` | `/api/users/{id}/add-balance` | Add balance to user | 👨‍💼 Admin |
-| `DELETE` | `/api/users/{id}` | Delete user | 👨‍💼 Admin |
+| `GET` | `/api/users` | Get all users | Admin |
+| `GET` | `/api/users/{id}` | Get specific user | Required |
+| `PUT` | `/api/users/{id}` | Update user profile | Required |
+| `POST` | `/api/users/{id}/add-balance` | Add balance to user | Admin |
+| `DELETE` | `/api/users/{id}` | Delete user | Admin |
 
 ---
 
-## 🎨 Screenshots
+## Screenshots
 
 <div align="center">
 
-### 🏠 **Homepage**
+### Homepage
 *Clean, modern landing page with clear call-to-action*
 
-### 📊 **User Dashboard**
+### User Dashboard
 *Comprehensive overview of parking activity and statistics*
 
-### 🅿️ **Parking Spots**
+### Parking Spots
 *Interactive parking layout with real-time availability*
 
-### 👨‍💼 **Admin Dashboard**
+### Admin Dashboard
 *Complete system management with analytics and controls*
 
 </div>
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
-### 🌐 **Production Deployment**
+### Production Deployment
 
-#### **Server Requirements**
+#### Server Requirements
 - Ubuntu 20.04+ / CentOS 8+
 - PHP 8.2+ with extensions
 - MySQL 8.0+
 - Nginx/Apache
 - SSL Certificate
 
-#### **Deployment Steps**
+#### Deployment Steps
 ```bash
 # 1. Clone and setup
 git clone https://github.com/Kidusdybala/Parking-System.git
@@ -303,7 +303,7 @@ chmod -R 755 storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 ```
 
-#### **Nginx Configuration**
+#### Nginx Configuration
 ```nginx
 server {
     listen 80;
@@ -326,9 +326,9 @@ server {
 
 ---
 
-## 🧪 Testing
+## Testing
 
-### **Run Backend Tests**
+### Run Backend Tests
 ```bash
 # Run all tests
 php artisan test
@@ -340,7 +340,7 @@ php artisan test --testsuite=Feature
 php artisan test --coverage
 ```
 
-### **Test Database**
+### Test Database
 ```bash
 # Create test database
 mysql -u root -p -e "CREATE DATABASE parking_system_test;"
@@ -351,17 +351,26 @@ php artisan migrate --env=testing
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please follow these steps:
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. **Open** a Pull Request
+1. Fork the repository
+2. Create a feature branch
+   ```bash
+   git checkout -b feature/AmazingFeature
+   ```
+3. Commit your changes
+   ```bash
+   git commit -m 'Add some AmazingFeature'
+   ```
+4. Push to the branch
+   ```bash
+   git push origin feature/AmazingFeature
+   ```
+5. Open a Pull Request
 
-### **Development Guidelines**
+### Development Guidelines
 - Follow PSR-12 coding standards for PHP
 - Use ESLint and Prettier for JavaScript
 - Write tests for new features
@@ -369,35 +378,35 @@ We welcome contributions! Please follow these steps:
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 <details>
 <summary><strong>Common Issues & Solutions</strong></summary>
 
-### **JWT Secret Not Set**
+### JWT Secret Not Set
 ```bash
 php artisan jwt:secret
 ```
 
-### **Permission Errors**
+### Permission Errors
 ```bash
 sudo chmod -R 755 storage bootstrap/cache
 sudo chown -R www-data:www-data storage bootstrap/cache
 ```
 
-### **Database Connection Issues**
+### Database Connection Issues
 - Verify database credentials in `.env`
 - Ensure MySQL service is running
 - Check firewall settings
 
-### **Frontend Build Issues**
+### Frontend Build Issues
 ```bash
 rm -rf node_modules package-lock.json
 npm install
 npm run build
 ```
 
-### **CORS Issues**
+### CORS Issues
 - Check `config/cors.php` configuration
 - Verify allowed origins and methods
 
@@ -405,16 +414,16 @@ npm run build
 
 ---
 
-## 📞 Support
+## Support
 
-- 📧 **Email**: support@mikipark.com
-- 🐛 **Issues**: [GitHub Issues](https://github.com/Kidusdybala/Parking-System/issues)
-- 📖 **Documentation**: [Wiki](https://github.com/Kidusdybala/Parking-System/wiki)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/Kidusdybala/Parking-System/discussions)
+- **Email**: support@mikipark.com
+- **Issues**: [GitHub Issues](https://github.com/Kidusdybala/Parking-System/issues)
+- **Documentation**: [Wiki](https://github.com/Kidusdybala/Parking-System/wiki)
+- **Discussions**: [GitHub Discussions](https://github.com/Kidusdybala/Parking-System/discussions)
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
@@ -422,11 +431,11 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 <div align="center">
 
-**⭐ Star this repository if you find it helpful!**
+**Star this repository if you find it helpful!**
 
 **MikiPark** - Smart Parking Management System  
-Built with ❤️ using Laravel & React
+Built with Laravel & React
 
-[⬆ Back to Top](#️-mikipark---smart-parking-management-system)
+[Back to Top](#mikipark---smart-parking-management-system)
 
 </div>
