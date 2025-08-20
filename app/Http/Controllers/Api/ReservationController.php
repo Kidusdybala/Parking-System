@@ -35,7 +35,7 @@ class ReservationController extends Controller
         }
 
         $reservations = $query->orderBy('created_at', 'desc')
-            ->paginate($request->get('per_page', 15));
+            ->paginate($request->get('per_page', 20));
 
         return response()->json([
             'success' => true,
@@ -83,7 +83,7 @@ class ReservationController extends Controller
         }
 
         $reservations = $query->orderBy('created_at', 'desc')
-            ->paginate($request->get('per_page', 15));
+            ->paginate($request->get('per_page', 20));
 
         return response()->json([
             'success' => true,
@@ -119,10 +119,12 @@ class ReservationController extends Controller
     }
 
     /**
-     * Create a new reservation (Reserve a spot for immediate use)
+     * Create a new reservation (Reserve a spot for 30 minutes)
      */
     public function store(Request $request)
     {
+        \Log::info("Store (reserve) called by user: " . $request->user()->id . " for spot: " . $request->parking_spot_id);
+        
         $validator = Validator::make($request->all(), [
             'parking_spot_id' => 'required|exists:parking_spots,id',
         ]);
@@ -135,8 +137,10 @@ class ReservationController extends Controller
             ], 422);
         }
 
+        $user = $request->user();
         $parkingSpot = ParkingSpot::find($request->parking_spot_id);
 
+        // Check if spot is available
         if ($parkingSpot->status !== 'available') {
             return response()->json([
                 'success' => false,
@@ -144,19 +148,37 @@ class ReservationController extends Controller
             ], 400);
         }
 
-        // Create reservation for immediate use (no specific end time)
+        // Check user's current reservations and active parking sessions (max 3 total)
+        $userActiveCount = Reservation::where('user_id', $user->id)
+            ->whereIn('status', ['reserved', 'active'])
+            ->count();
+
+        if ($userActiveCount >= 3) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You can only have a maximum of 3 active reservations/parking sessions at once'
+            ], 400);
+        }
+
+        $reservationExpiresAt = now()->addMinutes(30);
+
+        // Create reservation
         $reservation = Reservation::create([
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'parking_spot_id' => $request->parking_spot_id,
-            'start_time' => now(),
-            'end_time' => null, // Will be set when parking starts
-            'status' => 'reserved', // Reserved but not yet parking
-            'total_cost' => 0,
+            'status' => 'reserved',
+            'reserved_at' => now(),
+            'reservation_expires_at' => $reservationExpiresAt,
+            'start_time' => null, // Will be set when parking starts
+            'end_time' => null,
+            'total_cost' => 0.00,
         ]);
 
         // Mark spot as reserved
         $parkingSpot->update([
-            'status' => 'reserved'
+            'status' => 'reserved',
+            'reserved_by' => $user->id,
+            'reserved_at' => now()
         ]);
 
         // Load relationships
@@ -164,13 +186,13 @@ class ReservationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Parking spot reserved successfully! You can now start parking.',
+            'message' => 'Parking spot reserved successfully! You have 30 minutes to start parking.',
             'data' => $reservation
         ], 201);
     }
 
     /**
-     * Start parking (when user arrives and clicks "Start Parking")
+     * Start parking (when user arrives and clicks "Park Now")
      */
     public function startParking(Request $request, $id)
     {
@@ -186,14 +208,36 @@ class ReservationController extends Controller
             ], 404);
         }
 
+        // Check if reservation has expired
+        if ($reservation->reservation_expires_at && now()->gt($reservation->reservation_expires_at)) {
+            // Auto-cancel expired reservation
+            $reservation->update(['status' => 'cancelled']);
+            $reservation->parkingSpot->update([
+                'status' => 'available',
+                'reserved_by' => null,
+                'reserved_at' => null
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservation has expired and has been cancelled'
+            ], 400);
+        }
+
         // Start parking timer
         $reservation->update([
+            'start_time' => now(),
             'actual_start_time' => now(),
+            'parked_at' => now(),
             'status' => 'active'
         ]);
 
         // Update parking spot status
-        $reservation->parkingSpot->update(['status' => 'occupied']);
+        $reservation->parkingSpot->update([
+            'status' => 'occupied',
+            'reserved_by' => null, // Clear reservation info since now actively parked
+            'reserved_at' => null
+        ]);
 
         return response()->json([
             'success' => true,
@@ -207,17 +251,22 @@ class ReservationController extends Controller
      */
     public function endParking(Request $request, $id)
     {
+        \Log::info("EndParking called for reservation ID: $id by user: " . $request->user()->id);
+        
         $reservation = Reservation::where('id', $id)
             ->where('user_id', $request->user()->id)
             ->where('status', 'active')
             ->first();
 
         if (!$reservation) {
+            \Log::warning("No active reservation found for ID: $id");
             return response()->json([
                 'success' => false,
                 'message' => 'Active reservation not found'
             ], 404);
         }
+        
+        \Log::info("Found reservation: " . $reservation->id . " for spot: " . $reservation->parking_spot_id);
 
         $endTime = now();
         $startTime = Carbon::parse($reservation->actual_start_time ?? $reservation->start_time);
@@ -266,6 +315,7 @@ class ReservationController extends Controller
      */
     public function storeLegacy(Request $request)
     {
+        $startTime = Carbon::parse($request->start_time);
         $endTime = Carbon::parse($request->end_time);
 
         // Check for conflicting reservations
@@ -449,23 +499,38 @@ class ReservationController extends Controller
             ], 404);
         }
 
-        if ($reservation->status !== 'active') {
+        // Can only cancel reserved or active reservations
+        if (!in_array($reservation->status, ['reserved', 'active'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Cannot cancel this reservation'
             ], 400);
         }
 
-        // Calculate refund amount (full refund if canceled before start time)
+        // Calculate refund amount (full refund for reserved, partial for active)
         $refundAmount = 0;
-        if ($reservation->start_time > now()) {
-            $refundAmount = $reservation->total_cost;
+        if ($reservation->status === 'reserved') {
+            $refundAmount = $reservation->total_cost; // Usually 0 for reservations
+        } elseif ($reservation->status === 'active' && $reservation->total_cost > 0) {
+            // For active parking, could implement partial refund logic if needed
+            $refundAmount = 0; // No refund for active parking cancellation
         }
 
         // Update reservation status
-        $reservation->update(['status' => 'cancelled']);
+        $reservation->update([
+            'status' => 'cancelled',
+            'left_at' => now(),
+            'actual_end_time' => now()
+        ]);
 
-        // Refund to user balance
+        // Free up the parking spot
+        $reservation->parkingSpot->update([
+            'status' => 'available',
+            'reserved_by' => null,
+            'reserved_at' => null
+        ]);
+
+        // Refund to user balance if applicable
         if ($refundAmount > 0) {
             $user = User::find($reservation->user_id);
             $user->increment('balance', $refundAmount);
@@ -574,5 +639,39 @@ class ReservationController extends Controller
                 ]
             ]
         ]);
+    }
+
+    /**
+     * Clear all reservations (Debug only)
+     */
+    public function clearAllReservations(Request $request)
+    {
+        try {
+            // Get all active reservations for the current user
+            $userReservations = Reservation::where('user_id', $request->user()->id)
+                ->whereIn('status', ['active', 'reserved'])
+                ->get();
+
+            foreach ($userReservations as $reservation) {
+                // Update reservation status to cancelled
+                $reservation->update(['status' => 'cancelled']);
+                
+                // Free up the parking spot
+                if ($reservation->parkingSpot) {
+                    $reservation->parkingSpot->update(['status' => 'available']);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'All user reservations cleared successfully',
+                'cleared_count' => $userReservations->count()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error clearing reservations: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

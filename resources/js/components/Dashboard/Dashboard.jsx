@@ -29,10 +29,10 @@ const Dashboard = () => {
             const reservations = reservationsResponse.data.data || [];
 
             setStats({
-                totalSpots: spots.length,
-                availableSpots: spots.filter(spot => spot.status === 'available').length,
-                myReservations: reservations.length,
-                activeReservations: reservations.filter(r => r.status === 'active').length
+                totalSpots: Array.isArray(spots) ? spots.length : 0,
+                availableSpots: Array.isArray(spots) ? spots.filter(spot => spot.status === 'available').length : 0,
+                myReservations: Array.isArray(reservations) ? reservations.length : 0,
+                activeReservations: Array.isArray(reservations) ? reservations.filter(r => r.status === 'active').length : 0
             });
 
             setRecentReservations(reservations.slice(0, 5));

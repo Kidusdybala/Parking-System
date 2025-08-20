@@ -21,11 +21,11 @@ const ParkingSpots = () => {
         }
     };
 
-    const filteredSpots = spots.filter(spot => {
+    const filteredSpots = Array.isArray(spots) ? spots.filter(spot => {
         if (filter === 'available') return spot.status === 'available';
         if (filter === 'occupied') return spot.status === 'occupied';
         return true;
-    });
+    }) : [];
 
     const getStatusColor = (status) => {
         switch (status) {

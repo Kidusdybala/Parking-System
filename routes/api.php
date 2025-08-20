@@ -72,6 +72,7 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/{id}', [ReservationController::class, 'update']);
         Route::post('/{id}/cancel', [ReservationController::class, 'cancel']);
         Route::post('/{id}/complete', [ReservationController::class, 'complete']); // Admin only
+        Route::post('/debug/clear-all', [ReservationController::class, 'clearAllReservations']); // Debug only
     });
 });
 

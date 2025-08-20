@@ -36,14 +36,14 @@ PARKING RECEIPT
 ===============
 
 Receipt ID: ${session.id}
-Date: ${session.timestamp.toLocaleDateString()}
-Time: ${session.timestamp.toLocaleTimeString()}
+Date: ${session.startTime?.toLocaleDateString() || 'N/A'}
+Time: ${session.startTime?.toLocaleTimeString() || 'N/A'}
 
 PARKING DETAILS
 ---------------
 Spot Number: ${session.spotNumber}
-Start Time: ${session.startTime.toLocaleString()}
-End Time: ${session.endTime.toLocaleString()}
+Start Time: ${session.startTime?.toLocaleString() || 'N/A'}
+End Time: ${session.endTime?.toLocaleString() || 'N/A'}
 Duration: ${session.durationHours} hours
 
 PAYMENT DETAILS
@@ -107,7 +107,7 @@ Thank you for using our parking service!
                             <i className="fas fa-calendar mr-3 w-5"></i>
                             <div>
                                 <span className="text-sm">Date</span>
-                                <div className="font-semibold text-foreground">{session.timestamp.toLocaleDateString()}</div>
+                                <div className="font-semibold text-foreground">{session.startTime?.toLocaleDateString() || 'N/A'}</div>
                             </div>
                         </div>
 
@@ -115,7 +115,7 @@ Thank you for using our parking service!
                             <i className="fas fa-play mr-3 w-5"></i>
                             <div>
                                 <span className="text-sm">Start Time</span>
-                                <div className="font-semibold text-foreground">{session.startTime.toLocaleTimeString()}</div>
+                                <div className="font-semibold text-foreground">{session.startTime?.toLocaleTimeString() || 'N/A'}</div>
                             </div>
                         </div>
 
@@ -123,7 +123,7 @@ Thank you for using our parking service!
                             <i className="fas fa-stop mr-3 w-5"></i>
                             <div>
                                 <span className="text-sm">End Time</span>
-                                <div className="font-semibold text-foreground">{session.endTime.toLocaleTimeString()}</div>
+                                <div className="font-semibold text-foreground">{session.endTime?.toLocaleTimeString() || 'N/A'}</div>
                             </div>
                         </div>
                     </div>

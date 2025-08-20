@@ -19,6 +19,12 @@ class Reservation extends Model
         'left_at',
         'total_price',
         'is_paid',
+        'start_time',
+        'end_time',
+        'total_cost',
+        'reservation_expires_at',
+        'actual_start_time',
+        'actual_end_time',
     ];
 
     protected $casts = [
@@ -27,11 +33,20 @@ class Reservation extends Model
         'left_at' => 'datetime',
         'total_price' => 'decimal:2',
         'is_paid' => 'boolean',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+        'total_cost' => 'decimal:2',
+        'reservation_expires_at' => 'datetime',
+        'actual_start_time' => 'datetime',
+        'actual_end_time' => 'datetime',
     ];
 
-    // Define possible statuses (matching rms.sql structure)
-    const STATUS_FREE = 'free';
+    // Define possible statuses
+    const STATUS_RESERVED = 'reserved';
     const STATUS_ACTIVE = 'active';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_CANCELLED = 'cancelled';
+    const STATUS_FREE = 'free';
 
     /**
      * Get the user that owns the reservation.
@@ -50,6 +65,14 @@ class Reservation extends Model
     }
 
     /**
+     * Check if the reservation is reserved.
+     */
+    public function isReserved()
+    {
+        return $this->status === self::STATUS_RESERVED;
+    }
+
+    /**
      * Check if the reservation is active.
      */
     public function isActive()
@@ -58,27 +81,27 @@ class Reservation extends Model
     }
 
     /**
+     * Check if the reservation is completed.
+     */
+    public function isCompleted()
+    {
+        return $this->status === self::STATUS_COMPLETED;
+    }
+
+    /**
+     * Check if the reservation is cancelled.
+     */
+    public function isCancelled()
+    {
+        return $this->status === self::STATUS_CANCELLED;
+    }
+
+    /**
      * Check if the reservation is free (completed).
      */
     public function isFree()
     {
         return $this->status === self::STATUS_FREE;
-    }
-
-    /**
-     * Check if the reservation is completed (legacy method).
-     */
-    public function isCompleted()
-    {
-        return $this->status === self::STATUS_FREE;
-    }
-
-    /**
-     * Check if the reservation is cancelled (legacy method).
-     */
-    public function isCancelled()
-    {
-        return false; // No cancelled status in new structure
     }
 
     /**

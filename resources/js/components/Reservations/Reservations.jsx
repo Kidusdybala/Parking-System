@@ -34,10 +34,6 @@ const Reservations = () => {
     };
 
     const handleCancelReservation = async (reservationId) => {
-        if (!confirm('Are you sure you want to cancel this reservation?')) {
-            return;
-        }
-
         try {
             await axios.post(`/api/reservations/${reservationId}/cancel`);
             fetchReservations(); // Refresh the list

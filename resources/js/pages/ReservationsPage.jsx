@@ -6,46 +6,21 @@ import LoadingSpinner from '../components/Common/LoadingSpinner';
 
 const ReservationsPage = () => {
     const { user } = useAuth();
-    const { getUserReservations, handleCancelReservation, getReservationTimeRemaining } = useParking();
-    const [reservations, setReservations] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { userReservations, handleCancelReservation, getReservationTimeRemaining, loading } = useParking();
     const [actionLoading, setActionLoading] = useState(null);
     const [filter, setFilter] = useState('all');
     const [updateTrigger, setUpdateTrigger] = useState(0);
 
     useEffect(() => {
-        fetchReservations();
-        
-        // Listen for parking spot updates to refresh reservations
-        const handleParkingSpotsUpdate = () => {
-            fetchReservations();
-        };
-
-        window.addEventListener('parkingSpotsUpdated', handleParkingSpotsUpdate);
-
         // Set up timer to update reservation countdowns every 10 seconds
         const timer = setInterval(() => {
             setUpdateTrigger(prev => prev + 1);
         }, 10000);
 
         return () => {
-            window.removeEventListener('parkingSpotsUpdated', handleParkingSpotsUpdate);
             clearInterval(timer);
         };
     }, []);
-
-    const fetchReservations = async () => {
-        try {
-            setLoading(true);
-            // Get reservations from the parking context
-            const userReservations = getUserReservations();
-            setReservations(userReservations);
-        } catch (error) {
-            console.error('Error fetching reservations:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleCancelReservationLocal = async (reservationId) => {
         if (!confirm('Are you sure you want to cancel this reservation?')) {
@@ -55,15 +30,13 @@ const ReservationsPage = () => {
         try {
             setActionLoading(reservationId);
             // Find the reservation to get the spot ID
-            const reservation = reservations.find(r => r.id === reservationId);
-            if (reservation && reservation.status === 'active') {
+            const reservation = userReservations.find(r => r.id === reservationId);
+            if (reservation && (reservation.status === 'reserved' || reservation.status === 'active')) {
                 // Use the parking context to cancel the reservation
-                handleCancelReservation(reservation.parking_spot.id);
-                alert('Reservation cancelled successfully!');
-                fetchReservations(); // Refresh the list
+                await handleCancelReservation(reservation.parking_spot_id);
             }
         } catch (error) {
-            alert('Failed to cancel reservation');
+            console.error('Failed to cancel reservation:', error);
         } finally {
             setActionLoading(null);
         }
@@ -115,10 +88,10 @@ const ReservationsPage = () => {
         return `${hours}h ${minutes}m remaining`;
     };
 
-    const filteredReservations = reservations.filter(reservation => {
+    const filteredReservations = Array.isArray(userReservations) ? userReservations.filter(reservation => {
         if (filter === 'all') return true;
         return reservation.status === filter;
-    });
+    }) : [];
 
     if (loading) {
         return <LoadingSpinner />;
@@ -135,10 +108,10 @@ const ReservationsPage = () => {
             <div className="glass-card p-6 mb-8">
                 <div className="flex flex-wrap gap-2">
                     {[
-                        { key: 'all', label: 'All', count: reservations.length },
-                        { key: 'active', label: 'Active', count: reservations.filter(r => r.status === 'active').length },
-                        { key: 'completed', label: 'Completed', count: reservations.filter(r => r.status === 'completed').length },
-                        { key: 'cancelled', label: 'Cancelled', count: reservations.filter(r => r.status === 'cancelled').length }
+                        { key: 'all', label: 'All', count: Array.isArray(userReservations) ? userReservations.length : 0 },
+                        { key: 'active', label: 'Active', count: Array.isArray(userReservations) ? userReservations.filter(r => r.status === 'active').length : 0 },
+                        { key: 'completed', label: 'Completed', count: Array.isArray(userReservations) ? userReservations.filter(r => r.status === 'completed').length : 0 },
+                        { key: 'cancelled', label: 'Cancelled', count: Array.isArray(userReservations) ? userReservations.filter(r => r.status === 'cancelled').length : 0 }
                     ].map(tab => (
                         <button
                             key={tab.key}

@@ -166,7 +166,7 @@ const UserDashboard = () => {
                                             </div>
                                             <div>
                                                 <p className="text-muted-foreground text-sm">Available Slots</p>
-                                                <p className="text-2xl font-bold">{parkingSpots.filter(spot => spot.status === 'available').length}</p>
+                                                <p className="text-2xl font-bold">{Array.isArray(parkingSpots) ? parkingSpots.filter(spot => spot.status === 'available').length : 0}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -232,7 +232,7 @@ const UserDashboard = () => {
                             <div className="glass-card p-6 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
                                 <h2 className="text-xl font-bold mb-6">Available Parking Spots</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {parkingSpots.filter(spot => spot.status === 'available').map((spot) => (
+                                    {Array.isArray(parkingSpots) ? parkingSpots.filter(spot => spot.status === 'available').map((spot) => (
                                         <div key={spot.id} className="p-4 bg-parkBlue-800/50 rounded-lg border border-white/10">
                                             <div className="flex items-center justify-between mb-2">
                                                 <h3 className="font-bold">Spot {spot.spot_number}</h3>
@@ -255,7 +255,7 @@ const UserDashboard = () => {
                                         </div>
                                     ))}
                                 </div>
-                                {parkingSpots.filter(spot => spot.status === 'available').length === 0 && (
+                                {(!Array.isArray(parkingSpots) || parkingSpots.filter(spot => spot.status === 'available').length === 0) && (
                                     <p className="text-muted-foreground text-center py-8">No available parking spots at the moment</p>
                                 )}
                             </div>

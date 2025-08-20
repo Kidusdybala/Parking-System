@@ -11,18 +11,16 @@ const DashboardPage = () => {
     const navigate = useNavigate();
     const {
         parkingSpots,
-        setParkingSpots,
         activeParkingSessions,
-        setActiveParkingSessions,
-        completedSessions,
-        setCompletedSessions,
+        userReservations,
         handleReserveSpot,
         handleStartParking,
         handleCancelReservation,
         handleEndParking,
-        setGlobalSpotState,
         getReservationTimeRemaining,
-        manualReleaseSpot
+        manualReleaseSpot,
+        clearAllReservations,
+        loading: parkingLoading
     } = useParking();
     
     const [stats, setStats] = useState({
@@ -31,11 +29,10 @@ const DashboardPage = () => {
         totalSpent: 95.00
     });
     const [activeSection, setActiveSection] = useState(1);
-    const [userReservations, setUserReservations] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [reservationUpdateTrigger, setReservationUpdateTrigger] = useState(0);
     const spotsPerPage = 20;
-    const totalPages = 5;
+    const totalPages = Math.ceil(parkingSpots.length / spotsPerPage);
 
     useEffect(() => {
         fetchDashboardData();
@@ -198,14 +195,24 @@ const DashboardPage = () => {
                             <h3 className="font-bold mb-4">Current Status</h3>
                             <div className="space-y-3">
                                 {(() => {
-                                    // Find user's reserved spots
-                                    const reservedSpots = parkingSpots.filter(spot => 
-                                        spot.status === 'reserved' && String(spot.reserved_by) === String(user?.id)
-                                    );
-                                    // Find user's occupied spots
-                                    const occupiedSpots = parkingSpots.filter(spot => 
-                                        spot.status === 'occupied' && String(spot.occupied_by) === String(user?.id)
-                                    );
+                                    // Find user's reserved spots (from reservations, not spot status)
+                                    const reservedSpots = parkingSpots.filter(spot => {
+                                        // Check if user has a reserved reservation for this spot
+                                        return userReservations.some(reservation => 
+                                            reservation.parking_spot_id === spot.id && 
+                                            reservation.status === 'reserved' &&
+                                            String(reservation.user_id) === String(user?.id)
+                                        );
+                                    });
+                                    // Find user's occupied spots (from active reservations)
+                                    const occupiedSpots = parkingSpots.filter(spot => {
+                                        // Check if user has an active reservation for this spot
+                                        return userReservations.some(reservation => 
+                                            reservation.parking_spot_id === spot.id && 
+                                            reservation.status === 'active' &&
+                                            String(reservation.user_id) === String(user?.id)
+                                        );
+                                    });
                                     
                                     if (occupiedSpots.length > 0) {
                                         const spot = occupiedSpots[0];
@@ -242,11 +249,7 @@ const DashboardPage = () => {
                                                     </button>
                                                     <button 
                                                         className="btn btn-secondary text-xs py-1 px-2"
-                                                        onClick={() => {
-                                                            if (confirm('Release this spot? (This will clear the session without payment)')) {
-                                                                manualReleaseSpot(spot.id);
-                                                            }
-                                                        }}
+                                                        onClick={() => manualReleaseSpot(spot.id)}
                                                         title="Release spot manually"
                                                     >
                                                         Release
@@ -369,6 +372,23 @@ const DashboardPage = () => {
                                     <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
                                     <span className="text-sm text-muted-foreground">Reserved</span>
                                 </div>
+                                <button
+                                    onClick={() => clearAllReservations()}
+                                    className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200 transition-colors"
+                                    title="Clear all reservations (debug)"
+                                >
+                                    Clear All
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        fetchDashboardData();
+                                        window.location.reload();
+                                    }}
+                                    className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                                    title="Refresh data"
+                                >
+                                    Refresh
+                                </button>
                             </div>
                         </div>
                         
@@ -423,10 +443,12 @@ const DashboardPage = () => {
 
                                                         {/* Available - Show Reserve Button */}
                                                         {spot.status === 'available' && (() => {
-                                                            const currentReservations = parkingSpots.filter(s => 
-                                                                s.status === 'reserved' && s.reserved_by === user?.id
+                                                            // Count user's current active reservations and parking sessions
+                                                            const userActiveCount = userReservations.filter(r => 
+                                                                (r.status === 'reserved' || r.status === 'active') && 
+                                                                String(r.user_id) === String(user?.id)
                                                             ).length;
-                                                            const canReserve = currentReservations < 3;
+                                                            const canReserve = userActiveCount < 3;
                                                             
                                                             return (
                                                                 <button
@@ -437,7 +459,7 @@ const DashboardPage = () => {
                                                                             ? 'bg-blue-600 text-white hover:bg-blue-700' 
                                                                             : 'bg-gray-400 text-gray-200 cursor-not-allowed'
                                                                     }`}
-                                                                    title={!canReserve ? 'Maximum 3 reservations allowed' : ''}
+                                                                    title={!canReserve ? 'Maximum 3 reservations/parking sessions allowed' : ''}
                                                                 >
                                                                     {canReserve ? 'Reserve Now' : 'Limit Reached'}
                                                                 </button>
@@ -447,7 +469,7 @@ const DashboardPage = () => {
                                                         {/* Reserved - Show Park Now and Cancel buttons */}
                                                         {spot.status === 'reserved' && (
                                                             <div className="space-y-2">
-                                                                {String(spot.reserved_by) === String(user?.id) ? (
+                                                                {userReservations.some(r => r.parking_spot_id === spot.id && r.status === 'reserved' && String(r.user_id) === String(user?.id)) ? (
                                                                     <>
                                                                         <div className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded mb-2">
                                                                             Expires in: {getReservationTimeRemaining(spot.id)} min
@@ -476,7 +498,7 @@ const DashboardPage = () => {
                                                         {/* Occupied - Show timer and End Parking button */}
                                                         {spot.status === 'occupied' && (
                                                             <div className="space-y-2">
-                                                                {String(spot.occupied_by) === String(user?.id) && parkingSession ? (
+                                                                {userReservations.some(r => r.parking_spot_id === spot.id && r.status === 'active' && String(r.user_id) === String(user?.id)) && parkingSession ? (
                                                                     <>
                                                                         <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
                                                                             Time: {formatDuration(parkingSession.startTime)}

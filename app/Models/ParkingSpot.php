@@ -17,12 +17,15 @@ class ParkingSpot extends Model
         'hourly_rate', // Keep for backward compatibility
         'status',
         'is_reserved',
+        'reserved_by',
+        'reserved_at',
     ];
 
     protected $casts = [
         'hourly_rate' => 'decimal:2',
         'price_per_hour' => 'decimal:2',
         'is_reserved' => 'boolean',
+        'reserved_at' => 'datetime',
     ];
 
     /**

@@ -28,7 +28,7 @@ class ParkingController extends Controller
             $query->where('location', 'like', '%' . $request->location . '%');
         }
 
-        $parkingSpots = $query->paginate($request->get('per_page', 15));
+        $parkingSpots = $query->paginate($request->get('per_page', 20));
 
         return response()->json([
             'success' => true,
@@ -90,7 +90,7 @@ class ParkingController extends Controller
                           });
                     });
             })
-            ->paginate($request->get('per_page', 15));
+            ->paginate($request->get('per_page', 20));
 
         return response()->json([
             'success' => true,

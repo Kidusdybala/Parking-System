@@ -46,6 +46,15 @@ const Layout = ({ children }) => {
                             <div className={`absolute right-0 mt-2 w-48 py-2 bg-card rounded-md shadow-lg transition-all z-50 ${
                                 userDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
                             }`}>
+                                {user?.role === 3 && (
+                                    <Link 
+                                        to="/admin" 
+                                        className="block px-4 py-2 hover:bg-accent text-sm text-primary"
+                                        onClick={() => setUserDropdownOpen(false)}
+                                    >
+                                        <i className="fas fa-shield-alt mr-2"></i> Admin Panel
+                                    </Link>
+                                )}
                                 <Link 
                                     to="/profile" 
                                     className="block px-4 py-2 hover:bg-accent text-sm"

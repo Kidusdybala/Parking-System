@@ -44,10 +44,30 @@ const PublicRoute = ({ children }) => {
     }
     
     if (user) {
-        return <Navigate to="/dashboard" replace />;
+        // Redirect admin users to admin panel, regular users to dashboard
+        const redirectPath = user.role === 3 ? '/admin' : '/dashboard';
+        return <Navigate to={redirectPath} replace />;
     }
     
     return children;
+};
+
+// Root Route Component (redirect based on auth status and role)
+const RootRoute = () => {
+    const { user, loading } = useAuth();
+    
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+    
+    if (user) {
+        // Redirect admin users to admin panel, regular users to dashboard
+        const redirectPath = user.role === 3 ? '/admin' : '/dashboard';
+        return <Navigate to={redirectPath} replace />;
+    }
+    
+    // Not authenticated, show home page
+    return <HomePage />;
 };
 
 function App() {
@@ -60,11 +80,7 @@ function App() {
                     {/* Public Routes */}
                     <Route 
                         path="/" 
-                        element={
-                            <PublicRoute>
-                                <HomePage />
-                            </PublicRoute>
-                        } 
+                        element={<RootRoute />} 
                     />
                     <Route 
                         path="/login" 

@@ -36,18 +36,18 @@ const ProfilePage = () => {
             const response = await axios.get('/api/reservations');
             if (response.data.success) {
                 const reservations = response.data.data.data;
-                const completed = reservations.filter(r => r.status === 'completed');
-                const cancelled = reservations.filter(r => r.status === 'cancelled');
+                const completed = Array.isArray(reservations) ? reservations.filter(r => r.status === 'completed') : [];
+                const cancelled = Array.isArray(reservations) ? reservations.filter(r => r.status === 'cancelled') : [];
                 
-                const totalSpent = completed.reduce((sum, r) => sum + parseFloat(r.total_cost), 0);
-                const totalHours = completed.reduce((sum, r) => {
+                const totalSpent = Array.isArray(completed) ? completed.reduce((sum, r) => sum + parseFloat(r.total_cost), 0) : 0;
+                const totalHours = Array.isArray(completed) ? completed.reduce((sum, r) => {
                     const start = new Date(r.start_time);
                     const end = new Date(r.end_time);
                     return sum + Math.abs(end - start) / 36e5;
-                }, 0);
+                }, 0) : 0;
 
                 setReservationStats({
-                    total: reservations.length,
+                    total: Array.isArray(reservations) ? reservations.length : 0,
                     completed: completed.length,
                     cancelled: cancelled.length,
                     totalSpent: totalSpent,

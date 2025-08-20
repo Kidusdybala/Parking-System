@@ -26,6 +26,13 @@ const AdminPage = () => {
         status: 'available'
     });
     const [editingSpot, setEditingSpot] = useState(null);
+    const [editingUser, setEditingUser] = useState(null);
+    const [userForm, setUserForm] = useState({
+        name: '',
+        email: '',
+        balance: '',
+        role: 1
+    });
 
     useEffect(() => {
         if (user?.role === 3) { // Admin role
@@ -45,9 +52,9 @@ const AdminPage = () => {
                 
                 setStats(prev => ({
                     ...prev,
-                    totalSpots: spots.length,
-                    availableSpots: spots.filter(s => s.status === 'available').length,
-                    occupiedSpots: spots.filter(s => s.status === 'occupied').length
+                    totalSpots: Array.isArray(spots) ? spots.length : 0,
+                    availableSpots: Array.isArray(spots) ? spots.filter(s => s.status === 'available').length : 0,
+                    occupiedSpots: Array.isArray(spots) ? spots.filter(s => s.status === 'occupied').length : 0
                 }));
             }
 
@@ -66,9 +73,9 @@ const AdminPage = () => {
                 const allReservations = reservationsResponse.data.data.data;
                 setReservations(allReservations);
                 
-                const activeReservations = allReservations.filter(r => r.status === 'active');
-                const completedReservations = allReservations.filter(r => r.status === 'completed');
-                const totalRevenue = completedReservations.reduce((sum, r) => sum + parseFloat(r.total_cost), 0);
+                const activeReservations = Array.isArray(allReservations) ? allReservations.filter(r => r.status === 'active') : [];
+                const completedReservations = Array.isArray(allReservations) ? allReservations.filter(r => r.status === 'completed') : [];
+                const totalRevenue = Array.isArray(completedReservations) ? completedReservations.reduce((sum, r) => sum + parseFloat(r.total_cost), 0) : 0;
                 
                 setStats(prev => ({
                     ...prev,
@@ -98,7 +105,7 @@ const AdminPage = () => {
             const response = await axios.post('/api/parking-spots', spotForm);
             
             if (response.data.success) {
-                alert('Parking spot created successfully!');
+                console.log('Parking spot created successfully!');
                 setSpotForm({
                     spot_number: '',
                     location: '',
@@ -109,7 +116,7 @@ const AdminPage = () => {
             }
         } catch (error) {
             const message = error.response?.data?.message || 'Failed to create parking spot';
-            alert(message);
+            console.error('Create spot error:', message);
         } finally {
             setLoading(false);
         }
@@ -122,7 +129,7 @@ const AdminPage = () => {
             const response = await axios.put(`/api/parking-spots/${editingSpot.id}`, spotForm);
             
             if (response.data.success) {
-                alert('Parking spot updated successfully!');
+                console.log('Parking spot updated successfully!');
                 setEditingSpot(null);
                 setSpotForm({
                     spot_number: '',
@@ -134,28 +141,24 @@ const AdminPage = () => {
             }
         } catch (error) {
             const message = error.response?.data?.message || 'Failed to update parking spot';
-            alert(message);
+            console.error('Update spot error:', message);
         } finally {
             setLoading(false);
         }
     };
 
     const handleDeleteSpot = async (spotId) => {
-        if (!confirm('Are you sure you want to delete this parking spot?')) {
-            return;
-        }
-
         try {
             setLoading(true);
             const response = await axios.delete(`/api/parking-spots/${spotId}`);
             
             if (response.data.success) {
-                alert('Parking spot deleted successfully!');
+                console.log('Parking spot deleted successfully!');
                 fetchAdminData();
             }
         } catch (error) {
             const message = error.response?.data?.message || 'Failed to delete parking spot';
-            alert(message);
+            console.error('Delete spot error:', message);
         } finally {
             setLoading(false);
         }
@@ -167,12 +170,50 @@ const AdminPage = () => {
             const response = await axios.post(`/api/reservations/${reservationId}/complete`);
             
             if (response.data.success) {
-                alert('Reservation completed successfully!');
+                console.log('Reservation completed successfully!');
                 fetchAdminData();
             }
         } catch (error) {
             const message = error.response?.data?.message || 'Failed to complete reservation';
-            alert(message);
+            console.error('Complete reservation error:', message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddBalance = async (userId, amount) => {
+        try {
+            setLoading(true);
+            const response = await axios.post(`/api/users/${userId}/add-balance`, {
+                amount: parseFloat(amount)
+            });
+            
+            if (response.data.success) {
+                console.log('Balance added successfully!');
+                fetchAdminData();
+            }
+        } catch (error) {
+            const message = error.response?.data?.message || 'Failed to add balance';
+            console.error('Add balance error:', message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteUser = async (userId) => {
+        if (!confirm('Are you sure you want to delete this user?')) return;
+        
+        try {
+            setLoading(true);
+            const response = await axios.delete(`/api/users/${userId}`);
+            
+            if (response.data.success) {
+                console.log('User deleted successfully!');
+                fetchAdminData();
+            }
+        } catch (error) {
+            const message = error.response?.data?.message || 'Failed to delete user';
+            console.error('Delete user error:', message);
         } finally {
             setLoading(false);
         }
@@ -212,9 +253,11 @@ const AdminPage = () => {
 
     const tabs = [
         { key: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' },
+        { key: 'analytics', label: 'Analytics', icon: 'fas fa-chart-line' },
         { key: 'spots', label: 'Parking Spots', icon: 'fas fa-parking' },
         { key: 'reservations', label: 'Reservations', icon: 'fas fa-calendar-check' },
-        { key: 'users', label: 'Users', icon: 'fas fa-users' }
+        { key: 'users', label: 'Users', icon: 'fas fa-users' },
+        { key: 'payments', label: 'Payment History', icon: 'fas fa-credit-card' }
     ];
 
     if (user?.role !== 3) {
@@ -326,6 +369,75 @@ const AdminPage = () => {
                                 <p className="text-muted-foreground">Total Revenue</p>
                             </div>
                             <i className="fas fa-dollar-sign text-2xl text-green-400"></i>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Analytics Tab */}
+            {activeTab === 'analytics' && (
+                <div className="space-y-8">
+                    {/* Revenue Analytics */}
+                    <div className="glass-card p-6">
+                        <h2 className="text-xl font-semibold mb-6">Revenue Analytics</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="text-center">
+                                <h3 className="text-3xl font-bold text-green-400">{stats.totalRevenue.toFixed(2)} Birr</h3>
+                                <p className="text-muted-foreground">Total Revenue</p>
+                            </div>
+                            <div className="text-center">
+                                <h3 className="text-3xl font-bold text-blue-400">{(stats.totalRevenue / Math.max(stats.totalReservations, 1)).toFixed(2)} Birr</h3>
+                                <p className="text-muted-foreground">Average per Reservation</p>
+                            </div>
+                            <div className="text-center">
+                                <h3 className="text-3xl font-bold text-purple-400">{((stats.occupiedSpots / Math.max(stats.totalSpots, 1)) * 100).toFixed(1)}%</h3>
+                                <p className="text-muted-foreground">Occupancy Rate</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Usage Statistics */}
+                    <div className="glass-card p-6">
+                        <h2 className="text-xl font-semibold mb-6">Usage Statistics</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="bg-parkBlue-800/40 p-4 rounded-lg">
+                                <h4 className="font-semibold text-green-400">Active Sessions</h4>
+                                <p className="text-2xl font-bold">{stats.activeReservations}</p>
+                            </div>
+                            <div className="bg-parkBlue-800/40 p-4 rounded-lg">
+                                <h4 className="font-semibold text-blue-400">Completed Today</h4>
+                                <p className="text-2xl font-bold">{reservations.filter(r => r.status === 'completed' && new Date(r.updated_at).toDateString() === new Date().toDateString()).length}</p>
+                            </div>
+                            <div className="bg-parkBlue-800/40 p-4 rounded-lg">
+                                <h4 className="font-semibold text-yellow-400">Peak Hours</h4>
+                                <p className="text-2xl font-bold">9-11 AM</p>
+                            </div>
+                            <div className="bg-parkBlue-800/40 p-4 rounded-lg">
+                                <h4 className="font-semibold text-purple-400">Most Popular Spot</h4>
+                                <p className="text-2xl font-bold">A-001</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Recent Activity */}
+                    <div className="glass-card p-6">
+                        <h2 className="text-xl font-semibold mb-6">Recent Activity</h2>
+                        <div className="space-y-3">
+                            {reservations.slice(0, 10).map(reservation => (
+                                <div key={reservation.id} className="flex items-center justify-between p-3 bg-parkBlue-800/40 rounded-lg">
+                                    <div className="flex items-center space-x-3">
+                                        <i className={`fas ${reservation.status === 'active' ? 'fa-play text-blue-400' : reservation.status === 'completed' ? 'fa-check text-green-400' : 'fa-clock text-yellow-400'}`}></i>
+                                        <div>
+                                            <p className="font-medium">{reservation.user?.name || 'Unknown User'}</p>
+                                            <p className="text-sm text-muted-foreground">Spot {reservation.parking_spot?.spot_number}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-medium">{reservation.total_cost} Birr</p>
+                                        <p className="text-sm text-muted-foreground">{new Date(reservation.updated_at).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -513,37 +625,248 @@ const AdminPage = () => {
 
             {/* Users Tab */}
             {activeTab === 'users' && (
-                <div className="glass-card p-6">
-                    <h2 className="text-xl font-semibold mb-6">Users</h2>
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-white/10">
-                                    <th className="text-left py-3">Name</th>
-                                    <th className="text-left py-3">Email</th>
-                                    <th className="text-left py-3">Balance</th>
-                                    <th className="text-left py-3">Role</th>
-                                    <th className="text-left py-3">Joined</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.map(user => (
-                                    <tr key={user.id} className="border-b border-white/5">
-                                        <td className="py-3 font-medium">{user.name}</td>
-                                        <td className="py-3 text-muted-foreground">{user.email}</td>
-                                        <td className="py-3">${user.balance}</td>
-                                        <td className="py-3">
-                                            <span className={`badge ${user.role === 3 ? 'badge-reserved' : 'badge-available'}`}>
-                                                {user.role === 3 ? 'Admin' : 'User'}
-                                            </span>
-                                        </td>
-                                        <td className="py-3 text-muted-foreground">
-                                            {new Date(user.created_at).toLocaleDateString()}
-                                        </td>
+                <div className="space-y-8">
+                    {/* User Statistics */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div className="glass-card p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-primary">{stats.totalUsers}</h3>
+                                    <p className="text-muted-foreground">Total Users</p>
+                                </div>
+                                <i className="fas fa-users text-2xl text-primary"></i>
+                            </div>
+                        </div>
+                        <div className="glass-card p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-green-400">{users.filter(u => u.role !== 3).length}</h3>
+                                    <p className="text-muted-foreground">Regular Users</p>
+                                </div>
+                                <i className="fas fa-user text-2xl text-green-400"></i>
+                            </div>
+                        </div>
+                        <div className="glass-card p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-blue-400">{users.filter(u => u.role === 3).length}</h3>
+                                    <p className="text-muted-foreground">Admins</p>
+                                </div>
+                                <i className="fas fa-shield-alt text-2xl text-blue-400"></i>
+                            </div>
+                        </div>
+                        <div className="glass-card p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-yellow-400">{users.reduce((sum, u) => sum + parseFloat(u.balance || 0), 0).toFixed(2)} Birr</h3>
+                                    <p className="text-muted-foreground">Total Balance</p>
+                                </div>
+                                <i className="fas fa-wallet text-2xl text-yellow-400"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Users Management */}
+                    <div className="glass-card p-6">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-semibold">User Management</h2>
+                            <button className="btn btn-primary">
+                                <i className="fas fa-user-plus mr-2"></i>
+                                Add User
+                            </button>
+                        </div>
+                        
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-white/10">
+                                        <th className="text-left py-3">User</th>
+                                        <th className="text-left py-3">Balance</th>
+                                        <th className="text-left py-3">Role</th>
+                                        <th className="text-left py-3">Reservations</th>
+                                        <th className="text-left py-3">Joined</th>
+                                        <th className="text-left py-3">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {users.map(userData => (
+                                        <tr key={userData.id} className="border-b border-white/5">
+                                            <td className="py-3">
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                                                        <i className="fas fa-user text-primary text-sm"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium">{userData.name}</p>
+                                                        <p className="text-sm text-muted-foreground">{userData.email}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="py-3">
+                                                <span className="font-bold text-green-400">{userData.balance} Birr</span>
+                                            </td>
+                                            <td className="py-3">
+                                                <span className={`badge ${userData.role === 3 ? 'text-blue-400 bg-blue-500/20 border-blue-500/30' : 'text-green-400 bg-green-500/20 border-green-500/30'}`}>
+                                                    {userData.role === 3 ? 'Admin' : 'User'}
+                                                </span>
+                                            </td>
+                                            <td className="py-3">
+                                                <span className="text-muted-foreground">
+                                                    {reservations.filter(r => r.user_id === userData.id).length} total
+                                                </span>
+                                            </td>
+                                            <td className="py-3 text-muted-foreground">
+                                                {new Date(userData.created_at).toLocaleDateString()}
+                                            </td>
+                                            <td className="py-3">
+                                                <div className="flex items-center space-x-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            const amount = prompt('Enter amount to add to balance:');
+                                                            if (amount && !isNaN(amount)) {
+                                                                handleAddBalance(userData.id, amount);
+                                                            }
+                                                        }}
+                                                        className="btn btn-sm bg-green-500/20 hover:bg-green-500/30 text-green-400 border-green-500/30"
+                                                        title="Add Balance"
+                                                    >
+                                                        <i className="fas fa-plus"></i>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteUser(userData.id)}
+                                                        className="btn btn-sm bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/30"
+                                                        title="Delete User"
+                                                        disabled={userData.role === 3}
+                                                    >
+                                                        <i className="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        {users.length === 0 && (
+                            <div className="text-center py-8">
+                                <i className="fas fa-users text-4xl text-muted-foreground mb-4"></i>
+                                <p className="text-muted-foreground">No users found</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Payment History Tab */}
+            {activeTab === 'payments' && (
+                <div className="space-y-8">
+                    {/* Payment Summary */}
+                    <div className="glass-card p-6">
+                        <h2 className="text-xl font-semibold mb-6">Payment Summary</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div className="text-center">
+                                <h3 className="text-2xl font-bold text-green-400">{stats.totalRevenue.toFixed(2)} Birr</h3>
+                                <p className="text-muted-foreground">Total Revenue</p>
+                            </div>
+                            <div className="text-center">
+                                <h3 className="text-2xl font-bold text-blue-400">{reservations.filter(r => r.status === 'completed').length}</h3>
+                                <p className="text-muted-foreground">Completed Payments</p>
+                            </div>
+                            <div className="text-center">
+                                <h3 className="text-2xl font-bold text-yellow-400">{reservations.filter(r => r.status === 'active').length}</h3>
+                                <p className="text-muted-foreground">Pending Payments</p>
+                            </div>
+                            <div className="text-center">
+                                <h3 className="text-2xl font-bold text-purple-400">{(stats.totalRevenue / Math.max(reservations.filter(r => r.status === 'completed').length, 1)).toFixed(2)} Birr</h3>
+                                <p className="text-muted-foreground">Average Payment</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Payment History Table */}
+                    <div className="glass-card p-6">
+                        <h2 className="text-xl font-semibold mb-6">Payment History</h2>
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-white/10">
+                                        <th className="text-left py-3">Transaction ID</th>
+                                        <th className="text-left py-3">User</th>
+                                        <th className="text-left py-3">Spot</th>
+                                        <th className="text-left py-3">Amount</th>
+                                        <th className="text-left py-3">Duration</th>
+                                        <th className="text-left py-3">Date</th>
+                                        <th className="text-left py-3">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {reservations.filter(r => r.status === 'completed').map(payment => (
+                                        <tr key={payment.id} className="border-b border-white/5">
+                                            <td className="py-3 font-mono text-sm">#{payment.id.toString().padStart(6, '0')}</td>
+                                            <td className="py-3">
+                                                <div>
+                                                    <p className="font-medium">{payment.user?.name || 'Unknown'}</p>
+                                                    <p className="text-sm text-muted-foreground">{payment.user?.email}</p>
+                                                </div>
+                                            </td>
+                                            <td className="py-3 font-medium">{payment.parking_spot?.spot_number}</td>
+                                            <td className="py-3">
+                                                <span className="font-bold text-green-400">{payment.total_cost} Birr</span>
+                                            </td>
+                                            <td className="py-3">
+                                                {payment.actual_start_time && payment.actual_end_time ? 
+                                                    `${Math.ceil((new Date(payment.actual_end_time) - new Date(payment.actual_start_time)) / (1000 * 60 * 60))}h` : 
+                                                    'N/A'
+                                                }
+                                            </td>
+                                            <td className="py-3 text-muted-foreground">
+                                                {new Date(payment.updated_at).toLocaleDateString()}
+                                                <br />
+                                                <span className="text-xs">{new Date(payment.updated_at).toLocaleTimeString()}</span>
+                                            </td>
+                                            <td className="py-3">
+                                                <span className="badge text-green-400 bg-green-500/20 border-green-500/30">
+                                                    <i className="fas fa-check-circle mr-1"></i>
+                                                    Paid
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        {reservations.filter(r => r.status === 'completed').length === 0 && (
+                            <div className="text-center py-8">
+                                <i className="fas fa-credit-card text-4xl text-muted-foreground mb-4"></i>
+                                <p className="text-muted-foreground">No payment history available</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Recent Transactions */}
+                    <div className="glass-card p-6">
+                        <h2 className="text-xl font-semibold mb-6">Recent Transactions</h2>
+                        <div className="space-y-3">
+                            {reservations.filter(r => r.status === 'completed').slice(0, 5).map(transaction => (
+                                <div key={transaction.id} className="flex items-center justify-between p-4 bg-parkBlue-800/40 rounded-lg">
+                                    <div className="flex items-center space-x-4">
+                                        <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+                                            <i className="fas fa-check text-green-400"></i>
+                                        </div>
+                                        <div>
+                                            <p className="font-medium">{transaction.user?.name}</p>
+                                            <p className="text-sm text-muted-foreground">Spot {transaction.parking_spot?.spot_number}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-bold text-green-400">+{transaction.total_cost} Birr</p>
+                                        <p className="text-sm text-muted-foreground">{new Date(transaction.updated_at).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             )}
