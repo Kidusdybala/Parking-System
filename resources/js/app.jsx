@@ -70,118 +70,135 @@ const RootRoute = () => {
     return <HomePage />;
 };
 
+// Simple test component to check if React is working
+const TestApp = () => {
+    return (
+        <div className="min-h-screen bg-blue-900 flex items-center justify-center">
+            <div className="bg-white p-8 rounded-lg shadow-lg">
+                <h1 className="text-2xl font-bold text-gray-800 mb-4">🎉 MikiPark Frontend is Working!</h1>
+                <p className="text-gray-600 mb-4">React app loaded successfully</p>
+                <div className="space-y-2">
+                    <p className="text-sm text-gray-500">✅ React: Working</p>
+                    <p className="text-sm text-gray-500">✅ Vite: Working</p>
+                    <p className="text-sm text-gray-500">✅ Tailwind CSS: Working</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 function App() {
     return (
         <ErrorBoundary>
             <AuthProvider>
                 <ParkingProvider>
                     <Router>
-                <Routes>
-                    {/* Public Routes */}
-                    <Route 
-                        path="/" 
-                        element={<RootRoute />} 
-                    />
-                    <Route 
-                        path="/login" 
-                        element={
-                            <PublicRoute>
-                                <LoginPage />
-                            </PublicRoute>
-                        } 
-                    />
-                    <Route 
-                        path="/register" 
-                        element={
-                            <PublicRoute>
-                                <RegisterPage />
-                            </PublicRoute>
-                        } 
-                    />
-                    <Route 
-                        path="/verify-email" 
-                        element={
-                            <PublicRoute>
-                                <VerifyEmailPage />
-                            </PublicRoute>
-                        } 
-                    />
-                    <Route 
-                        path="/forgot-password" 
-                        element={
-                            <PublicRoute>
-                                <ForgotPasswordPage />
-                            </PublicRoute>
-                        } 
-                    />
-                    
-                    {/* Protected Routes */}
-                    <Route 
-                        path="/dashboard" 
-                        element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <DashboardPage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } 
-                    />
-                    <Route 
-                        path="/parking" 
-                        element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <ParkingPage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } 
-                    />
-                    <Route 
-                        path="/reservations" 
-                        element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <ReservationsPage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } 
-                    />
-                    <Route 
-                        path="/profile" 
-                        element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <ProfilePage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } 
-                    />
-                    <Route 
-                        path="/receipt" 
-                        element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <ReceiptPage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } 
-                    />
-                    
-                    {/* Admin Routes */}
-                    <Route 
-                        path="/admin" 
-                        element={
-                            <ProtectedRoute adminOnly={true}>
-                                <Layout>
-                                    <AdminPage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } 
-                    />
-                    
-                    {/* Default redirect for unknown routes */}
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
+                        <Routes>
+                            {/* Public Routes */}
+                            <Route
+                                path="/"
+                                element={<RootRoute />}
+                            />
+                            <Route
+                                path="/login"
+                                element={
+                                    <PublicRoute>
+                                        <LoginPage />
+                                    </PublicRoute>
+                                }
+                            />
+                            <Route
+                                path="/register"
+                                element={
+                                    <PublicRoute>
+                                        <RegisterPage />
+                                    </PublicRoute>
+                                }
+                            />
+                            <Route
+                                path="/verify-email"
+                                element={
+                                    <PublicRoute>
+                                        <VerifyEmailPage />
+                                    </PublicRoute>
+                                }
+                            />
+                            <Route
+                                path="/forgot-password"
+                                element={
+                                    <PublicRoute>
+                                        <ForgotPasswordPage />
+                                    </PublicRoute>
+                                }
+                            />
+
+                            {/* Protected Routes */}
+                            <Route
+                                path="/dashboard"
+                                element={
+                                    <ProtectedRoute>
+                                        <Layout>
+                                            <DashboardPage />
+                                        </Layout>
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/parking"
+                                element={
+                                    <ProtectedRoute>
+                                        <Layout>
+                                            <ParkingPage />
+                                        </Layout>
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/reservations"
+                                element={
+                                    <ProtectedRoute>
+                                        <Layout>
+                                            <ReservationsPage />
+                                        </Layout>
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/profile"
+                                element={
+                                    <ProtectedRoute>
+                                        <Layout>
+                                            <ProfilePage />
+                                        </Layout>
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route
+                                path="/receipt"
+                                element={
+                                    <ProtectedRoute>
+                                        <Layout>
+                                            <ReceiptPage />
+                                        </Layout>
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            {/* Admin Routes */}
+                            <Route
+                                path="/admin"
+                                element={
+                                    <ProtectedRoute adminOnly={true}>
+                                        <Layout>
+                                            <AdminPage />
+                                        </Layout>
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            {/* Default redirect for unknown routes */}
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
                     </Router>
                 </ParkingProvider>
             </AuthProvider>

@@ -10,14 +10,20 @@ export const useParkingSpots = () => {
     const fetchSpots = useCallback(async () => {
         const result = await get('/api/parking-spots');
         if (result.success) {
-            setSpots(result.data.data || []);
+            const spotsData = result.data?.data || result.data || [];
+            // Ensure we always have an array
+            setSpots(Array.isArray(spotsData) ? spotsData : []);
+        } else {
+            // On error, ensure spots is still an array
+            setSpots([]);
         }
     }, [get]);
 
     const fetchAvailableSpots = useCallback(async () => {
         const result = await get('/api/parking-spots/available/list');
         if (result.success) {
-            return result.data.data || [];
+            const spotsData = result.data?.data || result.data || [];
+            return Array.isArray(spotsData) ? spotsData : [];
         }
         return [];
     }, [get]);
@@ -35,20 +41,22 @@ export const useParkingSpots = () => {
     }, [fetchSpots]);
 
     useEffect(() => {
-        let filtered = spots;
+        // Ensure spots is always an array before filtering
+        const spotsArray = Array.isArray(spots) ? spots : [];
+        let filtered = spotsArray;
         
         switch (filter) {
             case 'available':
-                filtered = spots.filter(spot => spot.status === 'available');
+                filtered = spotsArray.filter(spot => spot.status === 'available');
                 break;
             case 'occupied':
-                filtered = spots.filter(spot => spot.status === 'occupied');
+                filtered = spotsArray.filter(spot => spot.status === 'occupied');
                 break;
             case 'reserved':
-                filtered = spots.filter(spot => spot.status === 'reserved');
+                filtered = spotsArray.filter(spot => spot.status === 'reserved');
                 break;
             default:
-                filtered = spots;
+                filtered = spotsArray;
         }
         
         setFilteredSpots(filtered);

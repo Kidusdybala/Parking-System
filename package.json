@@ -1,11 +1,24 @@
 {
+    "name": "parking-system",
+    "version": "1.0.0",
+    "description": "Full-stack Parking Management System",
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
-        "dev": "vite",
-        "dev:laravel": "php artisan serve",
-        "dev:all": "concurrently \"npm run dev\" \"npm run dev:laravel\" --names \"VITE,LARAVEL\" --prefix-colors \"blue,green\""
+        "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" --names \"BACKEND,FRONTEND\" --prefix-colors \"green,blue\"",
+        "dev:backend": "php artisan serve --host=127.0.0.1 --port=8000",
+        "dev:frontend": "cd frontend && npm run dev",
+        "dev:integrated": "npm run build:assets && npm run dev:backend",
+        "install:all": "composer install && cd frontend && npm install && cd ..",
+        "install:backend": "composer install",
+        "install:frontend": "cd frontend && npm install",
+        "build:frontend": "cd frontend && npm run build",
+        "build:assets": "npm run build && npm run dev",
+        "test:backend": "php artisan test",
+        "test:frontend": "cd frontend && npm run test",
+        "migrate": "php artisan migrate",
+        "migrate:fresh": "php artisan migrate:fresh --seed",
+        "seed": "php artisan db:seed"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",

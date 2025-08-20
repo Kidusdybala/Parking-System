@@ -8,7 +8,12 @@ export const useReservations = () => {
     const fetchReservations = useCallback(async () => {
         const result = await get('/api/reservations');
         if (result.success) {
-            setReservations(result.data.data || []);
+            const reservationsData = result.data?.data || result.data || [];
+            // Ensure we always have an array
+            setReservations(Array.isArray(reservationsData) ? reservationsData : []);
+        } else {
+            // On error, ensure reservations is still an array
+            setReservations([]);
         }
     }, [get]);
 
@@ -48,9 +53,11 @@ export const useReservations = () => {
         fetchReservations();
     }, [fetchReservations]);
 
-    const activeReservations = reservations.filter(r => r.status === 'active');
-    const completedReservations = reservations.filter(r => r.status === 'completed');
-    const cancelledReservations = reservations.filter(r => r.status === 'cancelled');
+    // Ensure reservations is always an array before filtering
+    const reservationsArray = Array.isArray(reservations) ? reservations : [];
+    const activeReservations = reservationsArray.filter(r => r.status === 'active');
+    const completedReservations = reservationsArray.filter(r => r.status === 'completed');
+    const cancelledReservations = reservationsArray.filter(r => r.status === 'cancelled');
 
     return {
         reservations,

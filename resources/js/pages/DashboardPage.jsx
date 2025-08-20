@@ -32,7 +32,7 @@ const DashboardPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [reservationUpdateTrigger, setReservationUpdateTrigger] = useState(0);
     const spotsPerPage = 20;
-    const totalPages = Math.ceil(parkingSpots.length / spotsPerPage);
+    const totalPages = Math.ceil((Array.isArray(parkingSpots) ? parkingSpots.length : 0) / spotsPerPage);
 
     useEffect(() => {
         fetchDashboardData();
@@ -95,7 +95,7 @@ const DashboardPage = () => {
     // Calculate pagination
     const startIndex = (currentPage - 1) * spotsPerPage;
     const endIndex = startIndex + spotsPerPage;
-    const currentPageSpots = parkingSpots.slice(startIndex, endIndex);
+    const currentPageSpots = Array.isArray(parkingSpots) ? parkingSpots.slice(startIndex, endIndex) : [];
     
     // Group current page spots by section
     const groupedSpots = currentPageSpots.reduce((acc, spot) => {
