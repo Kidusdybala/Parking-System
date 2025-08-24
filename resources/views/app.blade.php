@@ -7,6 +7,16 @@
 
     <title>{{ config('app.name', 'MikiPark') }}</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icon-32.svg') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('icon-16.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('favicon.svg') }}">
+    <!-- Android Chrome -->
+    <meta name="theme-color" content="#000000">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
