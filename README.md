@@ -53,7 +53,7 @@
 ```mermaid
 graph TB
     A[React Frontend] --> B[Laravel API Backend]
-    B --> C[MySQL Database]
+    B --> C[SQLite Database]
     B --> D[JWT Authentication]
     B --> E[Chapa Payment Gateway]
     B --> F[Email Service]
