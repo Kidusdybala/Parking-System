@@ -35,8 +35,7 @@
 ### 🎯 Core Functionality
 - **Real-time Parking Management** - Live parking spot availability tracking
 - **Smart Reservations** - Advanced booking system with time-based reservations
-- **Intelligent Recommendations** - AI-powered parking spot suggestions
-- **Multi-role Access Control** - User, Admin, and Super Admin roles
+- **Multi-role Access Control** - User, Admin.
 - **Payment Integration** - Chapa payment gateway integration
 - **Email Verification** - Secure user registration with email confirmation
 
