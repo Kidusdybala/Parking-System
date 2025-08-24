@@ -8,7 +8,7 @@
 [![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 
-**A comprehensive, full-stack parking management solution with real-time reservations, payment integration, and intelligent spot recommendations.**
+**A comprehensive, full-stack parking management solution with real-time reservations,Chapa payment integration**
 
 [🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🛠️ API Reference](#-api-reference) • [🤝 Contributing](#-contributing)
 
