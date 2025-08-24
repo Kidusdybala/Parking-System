@@ -758,16 +758,15 @@ copies or substantial portions of the Software.
 
 <div align="center">
 
-### 🙏 Thank You for Using MikiPark!
+### 🙏 Thank You for Using Miki Parking System!
 
-**Made with ❤️ by the MikiPark Team**
+**Made with oassion by Kidus Adugna**
 
-[⭐ Star this repo](https://github.com/your-username/MikiPark) • [🐛 Report Bug](https://github.com/your-username/MikiPark/issues) • [💡 Request Feature](https://github.com/your-username/MikiPark/issues)
 
 **Connect with us:**
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/your-username)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/your-profile)
-[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/your-handle)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/kidusdybala)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/[kiudusadugna](https://www.linkedin.com/in/kidusadugna/))
+
 
 </div>
 ```
