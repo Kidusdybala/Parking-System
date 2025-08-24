@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
@@ -274,9 +275,27 @@ const AdminPage = () => {
 
     return (
         <div className="container py-6">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-                <p className="text-muted-foreground">Manage parking system and monitor operations</p>
+            <div className="mb-8 flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+                    <p className="text-muted-foreground">Manage parking system and monitor operations</p>
+                </div>
+                <div className="flex gap-3">
+                    <Link 
+                        to="/dashboard" 
+                        className="btn btn-outline"
+                    >
+                        <i className="fas fa-tachometer-alt mr-2"></i>
+                        User Dashboard
+                    </Link>
+                    <Link 
+                        to="/parking" 
+                        className="btn btn-primary"
+                    >
+                        <i className="fas fa-parking mr-2"></i>
+                        View Parking
+                    </Link>
+                </div>
             </div>
 
             {/* Tab Navigation */}

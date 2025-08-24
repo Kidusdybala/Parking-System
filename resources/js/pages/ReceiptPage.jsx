@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 const ReceiptPage = () => {
@@ -44,7 +44,7 @@ PARKING DETAILS
 Spot Number: ${session.spotNumber}
 Start Time: ${session.startTime?.toLocaleString() || 'N/A'}
 End Time: ${session.endTime?.toLocaleString() || 'N/A'}
-Duration: ${session.durationHours} hours
+Duration: ${session.durationMinutes <= 30 ? `${session.durationMinutes} minutes (minimum fee)` : `${session.durationMinutes} minutes`}
 
 PAYMENT DETAILS
 ---------------
@@ -67,9 +67,27 @@ Thank you for using our parking service!
 
     return (
         <div className="container py-6">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Parking Receipt</h1>
-                <p className="text-muted-foreground">Your parking session has been completed successfully</p>
+            <div className="mb-8 flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold mb-2">Parking Receipt</h1>
+                    <p className="text-muted-foreground">Your parking session has been completed successfully</p>
+                </div>
+                <div className="flex gap-3">
+                    <Link 
+                        to="/dashboard" 
+                        className="btn btn-outline"
+                    >
+                        <i className="fas fa-tachometer-alt mr-2"></i>
+                        Dashboard
+                    </Link>
+                    <Link 
+                        to="/reservations" 
+                        className="btn btn-primary"
+                    >
+                        <i className="fas fa-calendar mr-2"></i>
+                        My Reservations
+                    </Link>
+                </div>
             </div>
 
             {/* Success Header */}
@@ -133,7 +151,9 @@ Thank you for using our parking service!
                             <i className="fas fa-clock mr-3 w-5"></i>
                             <div>
                                 <span className="text-sm">Duration</span>
-                                <div className="font-semibold text-foreground">{session.durationHours} hours</div>
+                                <div className="font-semibold text-foreground">
+                                    {session.durationMinutes <= 30 ? `${session.durationMinutes} minutes (minimum fee)` : `${session.durationMinutes} minutes`}
+                                </div>
                             </div>
                         </div>
 

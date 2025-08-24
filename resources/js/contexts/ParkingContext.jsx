@@ -34,7 +34,7 @@ export const ParkingProvider = ({ children }) => {
 
     // Fetch user reservations from API
     const fetchUserReservations = async () => {
-        if (!user) return;
+        if (!user || typeof user !== 'object') return;
         try {
             const response = await axios.get('/api/reservations');
             if (response.data.success) {
@@ -50,7 +50,7 @@ export const ParkingProvider = ({ children }) => {
         const loadData = async () => {
             setLoading(true);
             await fetchParkingSpots();
-            if (user) {
+            if (user && typeof user === 'object') {
                 await fetchUserReservations();
             }
             setLoading(false);
@@ -61,7 +61,7 @@ export const ParkingProvider = ({ children }) => {
         // Set up periodic refresh
         const interval = setInterval(() => {
             fetchParkingSpots();
-            if (user) {
+            if (user && typeof user === 'object') {
                 fetchUserReservations();
             }
         }, 30000); // Refresh every 30 seconds
@@ -132,8 +132,7 @@ export const ParkingProvider = ({ children }) => {
                 await fetchParkingSpots();
                 await fetchUserReservations();
                 
-                alert('Parking spot reserved successfully! You have 30 minutes to start parking.');
-            }
+                  }
         } catch (error) {
             const message = error.response?.data?.message || 'Failed to reserve parking spot';
             alert(message);
@@ -173,7 +172,7 @@ export const ParkingProvider = ({ children }) => {
                 await fetchParkingSpots();
                 await fetchUserReservations();
                 
-                alert('Parking started! Timer is now running.');
+               
             }
         } catch (error) {
             const message = error.response?.data?.message || 'Failed to start parking';

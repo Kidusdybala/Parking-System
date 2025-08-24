@@ -89,9 +89,9 @@ const ParkingCard = ({ spot, onReserve, userReservations = [], user, onUpdate })
                     disabled={!canReserve || isLoading}
                     loading={isLoading}
                     variant={canReserve ? "primary" : "secondary"}
-                    className="w-full"
+                    className="w-full text-sm py-2"
                 >
-                    {canReserve ? 'Reserve Spot' : 'Not Available'}
+                    {canReserve ? 'Reserve Now' : 'Not Available'}
                 </Button>
             );
         }
@@ -100,13 +100,13 @@ const ParkingCard = ({ spot, onReserve, userReservations = [], user, onUpdate })
         if (userReservation.status === 'reserved') {
             // Reserved but not started parking yet
             return (
-                <div className="space-y-2">
+                <div className="space-y-1">
                     <Button
                         onClick={() => handleAction('start')}
                         disabled={isLoading}
                         loading={isLoading}
                         variant="primary"
-                        className="w-full"
+                        className="w-full text-sm py-2"
                     >
                         🚗 Start Parking
                     </Button>
@@ -114,9 +114,9 @@ const ParkingCard = ({ spot, onReserve, userReservations = [], user, onUpdate })
                         onClick={() => handleAction('cancel')}
                         disabled={isLoading}
                         variant="outline"
-                        className="w-full text-red-600 border-red-300 hover:bg-red-50"
+                        className="w-full text-sm py-1 text-red-600 border-red-300 hover:bg-red-50"
                     >
-                        Cancel Reservation
+                        Cancel
                     </Button>
                 </div>
             );
@@ -124,26 +124,20 @@ const ParkingCard = ({ spot, onReserve, userReservations = [], user, onUpdate })
             // Currently parking
             const startTime = userReservation.actual_start_time || userReservation.start_time;
             return (
-                <div className="space-y-2">
-                    <div className="text-center text-sm text-blue-600 mb-2">
-                        ⏱️ Parking in progress...
+                <div className="space-y-1">
+                    <div className="text-center text-xs text-blue-600 mb-1">
+                        ⏱️ Parking in progress
                         <br />
-                        <span className="font-medium">30 birr/hour</span>
-                        {startTime && (
-                            <>
-                                <br />
-                                <span className="text-xs">Started: {new Date(startTime).toLocaleTimeString()}</span>
-                            </>
-                        )}
+                        <span className="font-medium">{spot.hourly_rate} birr/hour</span>
                     </div>
                     <Button
                         onClick={() => handleAction('end')}
                         disabled={isLoading}
                         loading={isLoading}
                         variant="primary"
-                        className="w-full bg-red-600 hover:bg-red-700"
+                        className="w-full text-sm py-2 bg-red-600 hover:bg-red-700"
                     >
-                        🏁 End Parking & Pay
+                        🏁 End & Pay
                     </Button>
                 </div>
             );
@@ -157,42 +151,31 @@ const ParkingCard = ({ spot, onReserve, userReservations = [], user, onUpdate })
     };
 
     return (
-        <Card hover>
-            <Card.Header>
+        <Card hover className="h-full">
+            <Card.Header className="pb-2">
                 <div className="flex items-center justify-between">
-                    <Card.Title>Spot {spot.spot_number || `#${spot.id}`}</Card.Title>
+                    <Card.Title className="text-lg">{spot.spot_number || `SPOT-${spot.id.toString().padStart(3, '0')}`}</Card.Title>
                     <Badge variant={statusVariant(spot.status)}>
                         {spot.status}
                     </Badge>
                 </div>
             </Card.Header>
-            <Card.Content>
-                <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex items-center">
-                        <i className="fas fa-map-marker-alt w-5 text-gray-400"></i>
-                        <span>{spot.location}</span>
+            <Card.Content className="pb-3">
+                <div className="space-y-1 text-sm text-gray-600">
+                    <div className="flex items-center justify-between">
+                        <span className="font-medium">Rate:</span>
+                        <span className="text-primary font-semibold">{spot.hourly_rate || spot.price_per_hour} birr/hour</span>
                     </div>
-                    <div className="flex items-center">
-                        <i className="fas fa-money-bill w-5 text-gray-400"></i>
-                        <span>{spot.hourly_rate || spot.price_per_hour} birr/hour</span>
+                    <div className="flex items-center justify-between">
+                        <span className="font-medium">Location:</span>
+                        <span className="text-xs">{spot.location?.split(' - ')[0] || 'N/A'}</span>
                     </div>
-                    {spot.name && spot.name !== `Spot ${spot.spot_number}` && (
-                        <div className="flex items-center">
-                            <i className="fas fa-tag w-5 text-gray-400"></i>
-                            <span>{spot.name}</span>
-                        </div>
-                    )}
                 </div>
                 
                 {userReservation && (
-                    <div className="mt-3 bg-blue-50 p-3 rounded-lg">
-                        <p className="text-sm text-blue-800 font-medium">Your Reservation</p>
-                        <p className="text-xs text-blue-600">Status: {userReservation.status}</p>
-                        {userReservation.actual_start_time && (
-                            <p className="text-xs text-blue-600">
-                                Started: {new Date(userReservation.actual_start_time).toLocaleTimeString()}
-                            </p>
-                        )}
+                    <div className="mt-2 bg-blue-50 p-2 rounded text-xs">
+                        <p className="text-blue-800 font-medium">Your Reservation</p>
+                        <p className="text-blue-600">Status: {userReservation.status}</p>
                     </div>
                 )}
             </Card.Content>

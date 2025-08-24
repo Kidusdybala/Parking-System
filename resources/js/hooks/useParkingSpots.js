@@ -8,7 +8,7 @@ export const useParkingSpots = () => {
     const { get, loading, error } = useApi();
 
     const fetchSpots = useCallback(async () => {
-        const result = await get('/api/parking-spots');
+        const result = await get('/api/parking-spots?per_page=100');
         if (result.success) {
             const spotsData = result.data?.data || result.data || [];
             // Ensure we always have an array

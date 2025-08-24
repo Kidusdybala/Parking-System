@@ -28,28 +28,8 @@ class ParkingSpotsSeeder extends Seeder
 
     private function getLocationForSpot(int $spotNumber): string
     {
-        $locations = [
-            'Ground Floor - Section A',
-            'Ground Floor - Section B', 
-            'Ground Floor - Section C',
-            'First Floor - Section A',
-            'First Floor - Section B',
-            'First Floor - Section C',
-            'Second Floor - Section A',
-            'Second Floor - Section B',
-            'Second Floor - Section C',
-            'Basement - Section A',
-            'Basement - Section B',
-            'Basement - Section C',
-            'Outdoor - North',
-            'Outdoor - South',
-            'Outdoor - East',
-            'Outdoor - West'
-        ];
-        
-        // Distribute spots evenly across locations
-        $locationIndex = ($spotNumber - 1) % count($locations);
-        return $locations[$locationIndex];
+        // Simple location - all spots in the same area
+        return 'Main Parking Area';
     }
 
     private function getHourlyRateForSpot(int $spotNumber): float
@@ -65,8 +45,10 @@ class ParkingSpotsSeeder extends Seeder
 
     private function getRandomStatus(): string
     {
-        $statuses = ['available', 'occupied', 'maintenance'];
-        $weights = [70, 25, 5]; // 70% available, 25% occupied, 5% maintenance
+        // Make all spots available by default
+        // Only a few spots should be under maintenance
+        $statuses = ['available', 'maintenance'];
+        $weights = [95, 5]; // 95% available, 5% maintenance
         
         $random = rand(1, 100);
         $cumulative = 0;

@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
 import { useParkingSpots } from '../hooks/useParkingSpots';
@@ -73,15 +74,33 @@ const ParkingPage = () => {
 
     return (
         <div className="container py-6">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Parking Spots</h1>
-                <p className="text-muted-foreground">Find and reserve your perfect parking spot</p>
+            <div className="mb-8 flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold mb-2">Parking Spots</h1>
+                    <p className="text-muted-foreground">Find and reserve your perfect parking spot</p>
+                </div>
+                <div className="flex gap-3">
+                    <Link 
+                        to="/reservations" 
+                        className="btn btn-outline"
+                    >
+                        <i className="fas fa-calendar mr-2"></i>
+                        My Reservations
+                    </Link>
+                    <Link 
+                        to="/dashboard" 
+                        className="btn btn-primary"
+                    >
+                        <i className="fas fa-tachometer-alt mr-2"></i>
+                        Dashboard
+                    </Link>
+                </div>
             </div>
 
             <ParkingFilters filters={filters} onChange={handleFilterChange} onReset={resetFilters} />
 
             {/* Parking Spots Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
                 {filteredSpots.map((spot) => (
                     <ParkingCard key={spot.id} spot={spot} onReserve={openReservationModal} />
                 ))}

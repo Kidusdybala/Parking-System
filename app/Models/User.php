@@ -68,6 +68,14 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
+     * Get the chapa transactions for the user.
+     */
+    public function chapaTransactions()
+    {
+        return $this->hasMany(\App\Models\ChapaTransaction::class);
+    }
+
+    /**
      * Check if user is admin.
      */
     public function isAdmin()

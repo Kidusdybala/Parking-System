@@ -365,13 +365,7 @@ const DashboardPage = () => {
                                     <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
                                     <span className="text-sm text-muted-foreground">Reserved</span>
                                 </div>
-                                <button
-                                    onClick={() => clearAllReservations()}
-                                    className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200 transition-colors"
-                                    title="Clear all reservations (debug)"
-                                >
-                                    Clear All
-                                </button>
+                            
                                 <button
                                     onClick={() => {
                                         fetchDashboardData();

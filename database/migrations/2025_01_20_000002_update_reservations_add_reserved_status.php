@@ -12,6 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Only update the reservations table if it exists
+        if (!Schema::hasTable('reservations')) {
+            return;
+        }
+
         // Update the reservations table to support new statuses
         Schema::table('reservations', function (Blueprint $table) {
             // Drop the old status enum and recreate with new values
@@ -45,6 +50,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (!Schema::hasTable('reservations')) {
+            return;
+        }
+
         Schema::table('reservations', function (Blueprint $table) {
             $table->dropColumn(['status', 'reservation_expires_at', 'actual_start_time', 'actual_end_time']);
         });

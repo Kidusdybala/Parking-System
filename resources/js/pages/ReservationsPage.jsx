@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useParking } from '../contexts/ParkingContext';
 import axios from 'axios';
@@ -99,9 +100,27 @@ const ReservationsPage = () => {
 
     return (
         <div className="container py-6">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">My Reservations</h1>
-                <p className="text-muted-foreground">Manage your parking reservations</p>
+            <div className="mb-8 flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold mb-2">My Reservations</h1>
+                    <p className="text-muted-foreground">Manage your parking reservations</p>
+                </div>
+                <div className="flex gap-3">
+                    <Link 
+                        to="/parking" 
+                        className="btn btn-outline"
+                    >
+                        <i className="fas fa-plus mr-2"></i>
+                        New Reservation
+                    </Link>
+                    <Link 
+                        to="/dashboard" 
+                        className="btn btn-primary"
+                    >
+                        <i className="fas fa-tachometer-alt mr-2"></i>
+                        Dashboard
+                    </Link>
+                </div>
             </div>
 
             {/* Filter Tabs */}

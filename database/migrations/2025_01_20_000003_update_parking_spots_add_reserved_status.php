@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (!Schema::hasTable('parking_spots')) {
+            return;
+        }
+
         Schema::table('parking_spots', function (Blueprint $table) {
             // Drop the old status enum and recreate with new values
-            $table->dropColumn('status');
+            if (Schema::hasColumn('parking_spots', 'status')) {
+                $table->dropColumn('status');
+            }
         });
         
         Schema::table('parking_spots', function (Blueprint $table) {
@@ -35,6 +41,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (!Schema::hasTable('parking_spots')) {
+            return;
+        }
+
         Schema::table('parking_spots', function (Blueprint $table) {
             $table->dropForeign(['reserved_by']);
             $table->dropColumn(['status', 'reserved_by', 'reserved_at']);

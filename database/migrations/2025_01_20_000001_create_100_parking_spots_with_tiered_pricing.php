@@ -12,8 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // First, clear existing parking spots
-        DB::table('parking_spots')->truncate();
+        // First, clear existing parking spots only if table exists
+        if (Schema::hasTable('parking_spots')) {
+            DB::table('parking_spots')->truncate();
+        }
         
         // Create 100 parking spots with tiered pricing
         $spots = [];
@@ -50,10 +52,12 @@ return new class extends Migration
             ];
         }
         
-        // Insert all spots in batches
-        $chunks = array_chunk($spots, 50);
-        foreach ($chunks as $chunk) {
-            DB::table('parking_spots')->insert($chunk);
+        // Insert all spots in batches only if table exists
+        if (Schema::hasTable('parking_spots')) {
+            $chunks = array_chunk($spots, 50);
+            foreach ($chunks as $chunk) {
+                DB::table('parking_spots')->insert($chunk);
+            }
         }
     }
 
@@ -62,6 +66,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::table('parking_spots')->truncate();
+        if (Schema::hasTable('parking_spots')) {
+            DB::table('parking_spots')->truncate();
+        }
     }
 };

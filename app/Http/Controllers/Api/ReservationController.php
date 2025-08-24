@@ -271,9 +271,29 @@ class ReservationController extends Controller
         $endTime = now();
         $startTime = Carbon::parse($reservation->actual_start_time ?? $reservation->start_time);
         
-        // Calculate duration in hours (minimum 1 hour)
-        $durationHours = max(1, $startTime->diffInHours($endTime, true));
-        $totalCost = $durationHours * 30; // 30 birr per hour
+        // Get the parking spot's hourly rate
+        $parkingSpot = $reservation->parkingSpot;
+        $hourlyRate = $parkingSpot->hourly_rate;
+        
+        // Calculate duration in minutes first
+        $durationMinutes = $startTime->diffInMinutes($endTime, true);
+        
+        // Pricing logic:
+        // - Minimum fee: 30 minutes at half the hourly rate
+        // - After 30 minutes: Pay full hourly rate based on actual time
+        // - Round up to nearest 15 minutes for billing
+        
+        $minimumFee = $hourlyRate * 0.5; // 30 minutes at half rate
+        
+        if ($durationMinutes <= 30) {
+            // Pay minimum fee for any duration up to 30 minutes
+            $durationHours = 0.5; // 30 minutes
+            $totalCost = $minimumFee;
+        } else {
+            // After 30 minutes: Pay full rate, rounded up to nearest 15 minutes
+            $durationHours = ceil($durationMinutes / 15) * 0.25; // Convert to hours
+            $totalCost = $durationHours * $hourlyRate;
+        }
 
         // Check if user has sufficient balance
         $user = $request->user();
@@ -304,6 +324,8 @@ class ReservationController extends Controller
             'data' => [
                 'reservation' => $reservation->load(['parkingSpot', 'user']),
                 'duration_hours' => $durationHours,
+                'duration_minutes' => $durationMinutes,
+                'hourly_rate' => $hourlyRate,
                 'total_cost' => $totalCost,
                 'remaining_balance' => $user->fresh()->balance
             ]

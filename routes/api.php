@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ParkingController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VerificationController as ApiVerificationController;
+use App\Http\Controllers\Api\ChapaController;
 
 
 
@@ -22,6 +23,10 @@ Route::prefix('auth')->group(function () {
 // Public email verification endpoints (must be public since users can't authenticate until verified)
 Route::post('/verify-email', [ApiVerificationController::class, 'verify']);
 Route::post('/resend-verification', [ApiVerificationController::class, 'resend']);
+
+// Public Chapa webhook endpoints (must be public for Chapa to call)
+Route::post('/chapa/callback', [ChapaController::class, 'handleCallback']);
+Route::get('/chapa/callback', [ChapaController::class, 'handleCallback']);
 
 // Public parking information
 Route::get('/parking-spots', [ParkingController::class, 'index']);
@@ -73,6 +78,17 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/{id}/cancel', [ReservationController::class, 'cancel']);
         Route::post('/{id}/complete', [ReservationController::class, 'complete']); // Admin only
         Route::post('/debug/clear-all', [ReservationController::class, 'clearAllReservations']); // Debug only
+    });
+
+    // Chapa payment routes
+    Route::prefix('chapa')->group(function () {
+        Route::post('/wallet/topup', [ChapaController::class, 'initializeWalletTopup']); // Initialize wallet top-up
+        Route::post('/reservation/payment', [ChapaController::class, 'initializeReservationPayment']); // Initialize reservation payment
+        Route::get('/verify/{txRef}', [ChapaController::class, 'verifyPayment']); // Verify payment
+        Route::post('/verify/{txRef}/force', [ChapaController::class, 'forceVerifyPayment']); // Force verify payment (debugging)
+        Route::get('/transactions', [ChapaController::class, 'getTransactionHistory']); // User's transaction history
+        Route::get('/transactions/{txRef}', [ChapaController::class, 'getTransactionDetails']); // Get specific transaction
+        Route::post('/transactions/{txRef}/cancel', [ChapaController::class, 'cancelTransaction']); // Cancel pending transaction
     });
 });
 

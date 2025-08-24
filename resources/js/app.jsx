@@ -24,11 +24,11 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
         return <LoadingSpinner />;
     }
     
-    if (!user) {
+    if (!user || typeof user !== 'object') {
         return <Navigate to="/login" replace />;
     }
     
-    if (adminOnly && user.role !== 3) {
+    if (adminOnly && (user.role !== 3 || !user.role)) {
         return <Navigate to="/dashboard" replace />;
     }
     
@@ -43,7 +43,7 @@ const PublicRoute = ({ children }) => {
         return <LoadingSpinner />;
     }
     
-    if (user) {
+    if (user && typeof user === 'object') {
         // Redirect admin users to admin panel, regular users to dashboard
         const redirectPath = user.role === 3 ? '/admin' : '/dashboard';
         return <Navigate to={redirectPath} replace />;
@@ -60,7 +60,7 @@ const RootRoute = () => {
         return <LoadingSpinner />;
     }
     
-    if (user) {
+    if (user && typeof user === 'object') {
         // Redirect admin users to admin panel, regular users to dashboard
         const redirectPath = user.role === 3 ? '/admin' : '/dashboard';
         return <Navigate to={redirectPath} replace />;

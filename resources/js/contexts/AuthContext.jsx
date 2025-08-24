@@ -32,20 +32,33 @@ export const AuthProvider = ({ children }) => {
             const savedToken = Cookies.get('auth_token');
             if (savedToken) {
                 try {
+                    setToken(savedToken);
                     axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
                     const response = await axios.get('/api/auth/me');
-                    if (response.data.success) {
-                        setUser(response.data.user);
-                        setToken(savedToken);
+                    if (response.data.success && response.data.user) {
+                        // Ensure user object has all required properties
+                        const userData = {
+                            id: response.data.user.id || 0,
+                            name: response.data.user.name || '',
+                            email: response.data.user.email || '',
+                            role: response.data.user.role || 1,
+                            balance: response.data.user.balance || 0,
+                            ...response.data.user
+                        };
+                        setUser(userData);
                     } else {
                         // Token is invalid
+                        setUser(null);
+                        setToken(null);
                         Cookies.remove('auth_token');
                         delete axios.defaults.headers.common['Authorization'];
                     }
                 } catch (error) {
                     console.error('Auth check failed:', error);
-                    Cookies.remove('auth_token');
-                    delete axios.defaults.headers.common['Authorization'];
+                    // Don't clear token here - let the interceptor handle it
+                    setUser(null);
+                    setLoading(false);
+                    return;
                 }
             }
             setLoading(false);
@@ -133,25 +146,27 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Token refresh is now handled by axios interceptor in bootstrap.js
     const refreshToken = async () => {
-        try {
-            const response = await axios.post('/api/auth/refresh');
-            if (response.data.success) {
-                const newToken = response.data.token;
-                setToken(newToken);
-                Cookies.set('auth_token', newToken, { expires: 7 });
-                axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-                return true;
-            }
-        } catch (error) {
-            console.error('Token refresh failed:', error);
-            logout();
-            return false;
-        }
+        console.warn('refreshToken is deprecated - handled by axios interceptor');
+        return false;
     };
 
     const updateUser = (updatedUser) => {
-        setUser(updatedUser);
+        if (updatedUser && typeof updatedUser === 'object') {
+            // Ensure user object has all required properties
+            const userData = {
+                id: updatedUser.id || 0,
+                name: updatedUser.name || '',
+                email: updatedUser.email || '',
+                role: updatedUser.role || 1,
+                balance: updatedUser.balance || 0,
+                ...updatedUser
+            };
+            setUser(userData);
+        } else {
+            console.warn('updateUser called with invalid data:', updatedUser);
+        }
     };
 
     const value = {

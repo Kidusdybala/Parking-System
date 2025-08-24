@@ -31,30 +31,93 @@ axios.interceptors.request.use(
     }
 );
 
-// Add response interceptor for token refresh
+// Add response interceptor for token refresh (with loop prevention)
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    
+    failedQueue = [];
+};
+
 axios.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
 
+        // Don't retry refresh endpoint or already retried requests
+        if (error.config?.url?.includes('/api/auth/refresh') || originalRequest._retry) {
+            return Promise.reject(error);
+        }
+
         if (error.response?.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                // If already refreshing, queue this request
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                }).then(token => {
+                    originalRequest.headers.Authorization = `Bearer ${token}`;
+                    return axios(originalRequest);
+                }).catch(err => {
+                    return Promise.reject(err);
+                });
+            }
+
             originalRequest._retry = true;
+            isRefreshing = true;
 
             try {
-                const response = await axios.post('/api/auth/refresh');
+                // Create a new axios instance without interceptors for refresh
+                const refreshAxios = axios.create({
+                    baseURL: axios.defaults.baseURL,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Cookies.get('auth_token')}`
+                    }
+                });
+
+                const response = await refreshAxios.post('/api/auth/refresh');
 
                 if (response.data.success) {
                     const newToken = response.data.token;
                     Cookies.set('auth_token', newToken, { expires: 7 });
+                    
+                    // Update default header
+                    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+                    
+                    processQueue(null, newToken);
 
                     // Retry original request with new token
                     originalRequest.headers.Authorization = `Bearer ${newToken}`;
                     return axios(originalRequest);
+                } else {
+                    throw new Error('Token refresh failed');
                 }
             } catch (refreshError) {
-                // Refresh failed, redirect to login
+                console.error('Token refresh failed:', refreshError);
+                processQueue(refreshError, null);
+                
+                // Clear auth data and redirect to login
                 Cookies.remove('auth_token');
-                window.location.href = '/login';
+                delete axios.defaults.headers.common['Authorization'];
+                
+                // Only redirect if we're not already on login page
+                if (!window.location.pathname.includes('/login')) {
+                    window.location.href = '/login';
+                }
+                
+                return Promise.reject(refreshError);
+            } finally {
+                isRefreshing = false;
             }
         }
 

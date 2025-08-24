@@ -23,7 +23,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'admin@parking.com',
                 'password' => Hash::make('admin123'),
                 'role' => 3, // Admin role
-                'balance' => 10000.00, // Give admin some balance
+                'balance' => 0.00, // Admin doesn't need balance
                 'email_verified_at' => now(), // Mark as verified
             ]);
             

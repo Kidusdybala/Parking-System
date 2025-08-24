@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
+import { chapaService } from '../services/chapaService';
 
 const ProfilePage = () => {
     const { user, updateUser } = useAuth();
@@ -17,7 +19,8 @@ const ProfilePage = () => {
         password_confirmation: ''
     });
     const [balanceForm, setBalanceForm] = useState({
-        amount: ''
+        amount: '',
+        phone_number: ''
     });
     const [reservationStats, setReservationStats] = useState({
         total: 0,
@@ -26,6 +29,9 @@ const ProfilePage = () => {
         totalSpent: 0,
         totalHours: 0
     });
+    const [paymentLoading, setPaymentLoading] = useState(false);
+    const [paymentError, setPaymentError] = useState('');
+    const [bonusInfo, setBonusInfo] = useState({ hasBonus: false });
 
     useEffect(() => {
         fetchUserStats();
@@ -101,27 +107,58 @@ const ProfilePage = () => {
 
     const handleAddBalance = async (e) => {
         e.preventDefault();
+        setPaymentError('');
+        
+        // Validate amount
+        const validation = chapaService.validateAmount(balanceForm.amount);
+        if (!validation.valid) {
+            setPaymentError(validation.message);
+            return;
+        }
+
         try {
-            setLoading(true);
-            const response = await axios.post(`/api/users/${user.id}/add-balance`, {
-                amount: parseFloat(balanceForm.amount)
-            });
+            setPaymentLoading(true);
             
-            if (response.data.success) {
-                // Only update the balance, preserve all other user data
-                updateUser({ 
-                    ...user, 
-                    balance: response.data.data.new_balance 
-                });
-                alert(`$${balanceForm.amount} added to your balance successfully!`);
-                setBalanceForm({ amount: '' });
+            const paymentData = {
+                amount: parseFloat(balanceForm.amount),
+                phone_number: balanceForm.phone_number || undefined,
+                description: `Wallet Top-up - ${balanceForm.amount} ETB`
+            };
+
+            const result = await chapaService.initializeWalletTopup(paymentData);
+            
+            if (result.success) {
+                // Store transaction reference for verification later
+                sessionStorage.setItem('pendingTopup', JSON.stringify({
+                    txRef: result.txRef,
+                    amount: balanceForm.amount,
+                    userId: user.id
+                }));
+                
+                // Show success message
+             
+                // Redirect to Chapa checkout
+                chapaService.redirectToCheckout(result.checkoutUrl);
+            } else {
+                setPaymentError(result.message || 'Payment initialization failed');
+                if (result.errors && result.errors.length > 0) {
+                    console.error('Payment errors:', result.errors);
+                }
             }
         } catch (error) {
-            const message = error.response?.data?.message || 'Failed to add balance';
-            alert(message);
+            setPaymentError(error.message || 'An error occurred while processing payment');
+            console.error('Payment error:', error);
         } finally {
-            setLoading(false);
+            setPaymentLoading(false);
         }
+    };
+
+    // Handle amount change and check for bonuses
+    const handleAmountChange = (amount) => {
+        setBalanceForm(prev => ({ ...prev, amount }));
+        const bonus = chapaService.checkForBonuses(amount);
+        setBonusInfo(bonus);
+        setPaymentError('');
     };
 
     const tabs = [
@@ -133,9 +170,18 @@ const ProfilePage = () => {
 
     return (
         <div className="container py-6">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Profile Settings</h1>
-                <p className="text-muted-foreground">Manage your account settings and preferences</p>
+            <div className="mb-8 flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold mb-2">Profile Settings</h1>
+                    <p className="text-muted-foreground">Manage your account settings and preferences</p>
+                </div>
+                <Link 
+                    to="/dashboard" 
+                    className="btn btn-primary"
+                >
+                    <i className="fas fa-tachometer-alt mr-2"></i>
+                    Go to Dashboard
+                </Link>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -284,63 +330,191 @@ const ProfilePage = () => {
                             </div>
                         )}
 
-                        {/* Balance Tab */}
+                        {/* Balance Tab - Secure Chapa Integration */}
                         {activeTab === 'balance' && (
                             <div>
-                                <h2 className="text-xl font-semibold mb-6">Manage Balance</h2>
+                                <h2 className="text-xl font-semibold mb-6">
+                                    <i className="fas fa-wallet mr-2"></i>
+                                    Wallet Top-up via Chapa
+                                </h2>
                                 
                                 <div className="bg-parkBlue-800/30 p-6 rounded-lg mb-6">
                                     <div className="text-center">
                                         <h3 className="text-2xl font-bold text-primary mb-2">
-                                            ${user?.balance || 0}
+                                            {user?.balance || 0} ETB
                                         </h3>
                                         <p className="text-muted-foreground">Current Balance</p>
                                     </div>
                                 </div>
 
+                                {/* Security Notice */}
+                                <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-lg mb-6">
+                                    <div className="flex items-start">
+                                        <i className="fas fa-shield-alt text-green-400 mr-3 mt-1"></i>
+                                        <div>
+                                            <h4 className="font-semibold text-green-400 mb-1">Secure Payment via Chapa</h4>
+                                            <p className="text-sm text-muted-foreground">
+                                                Pay securely using mobile money, cards, or bank transfer. 
+                                                No more manual proof uploads required!
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Payment Error */}
+                                {paymentError && (
+                                    <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-lg mb-6">
+                                        <div className="flex items-center">
+                                            <i className="fas fa-exclamation-triangle text-red-400 mr-3"></i>
+                                            <p className="text-red-400">{paymentError}</p>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <form onSubmit={handleAddBalance} className="space-y-4">
                                     <div>
-                                        <label className="block text-sm font-medium mb-2">Add Amount</label>
+                                        <label className="block text-sm font-medium mb-2">
+                                            Amount (ETB)
+                                            <span className="text-red-400 ml-1">*</span>
+                                        </label>
                                         <input
                                             type="number"
-                                            step="0.01"
-                                            min="1"
+                                            step="1"
+                                            min="10"
+                                            max="50000"
                                             className="input"
-                                            placeholder="Enter amount to add"
+                                            placeholder="Enter amount (minimum 10 ETB)"
                                             value={balanceForm.amount}
-                                            onChange={(e) => setBalanceForm(prev => ({
-                                                ...prev,
-                                                amount: e.target.value
-                                            }))}
+                                            onChange={(e) => handleAmountChange(e.target.value)}
                                             required
                                         />
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            Minimum: 10 ETB | Maximum: 50,000 ETB
+                                        </p>
                                     </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">
+                                            Phone Number (Optional)
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            className="input"
+                                            placeholder="+251911123456 (for mobile money)"
+                                            value={balanceForm.phone_number}
+                                            onChange={(e) => setBalanceForm(prev => ({
+                                                ...prev,
+                                                phone_number: e.target.value
+                                            }))}
+                                        />
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            Required for mobile money payments
+                                        </p>
+                                    </div>
+
+                                    {/* Bonus Information */}
+                                    {bonusInfo.hasBonus && (
+                                        <div className="bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-lg">
+                                            <div className="flex items-center">
+                                                <i className="fas fa-gift text-yellow-400 mr-3"></i>
+                                                <div>
+                                                    <h4 className="font-semibold text-yellow-400">
+                                                        Bonus: +{bonusInfo.bonusAmount.toFixed(2)} ETB
+                                                    </h4>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {bonusInfo.message}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <button
                                         type="submit"
-                                        disabled={loading}
-                                        className="btn btn-primary"
+                                        disabled={paymentLoading || !balanceForm.amount}
+                                        className="btn btn-primary w-full"
                                     >
-                                        {loading ? (
+                                        {paymentLoading ? (
                                             <i className="fas fa-spinner fa-spin mr-2"></i>
                                         ) : (
-                                            <i className="fas fa-plus mr-2"></i>
+                                            <i className="fas fa-credit-card mr-2"></i>
                                         )}
-                                        {loading ? 'Adding...' : 'Add Balance'}
+                                        {paymentLoading ? 'Processing...' : `Pay ${balanceForm.amount || '0'} ETB via Chapa`}
                                     </button>
                                 </form>
 
+                                {/* Quick Amount Options */}
                                 <div className="mt-8">
-                                    <h3 className="font-semibold mb-4">Quick Add Options</h3>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                        {[10, 25, 50, 100].map(amount => (
+                                    <h3 className="font-semibold mb-4">
+                                        <i className="fas fa-bolt mr-2"></i>
+                                        Quick Amount Options
+                                    </h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                        {chapaService.getRecommendedAmounts().map(amount => (
                                             <button
                                                 key={amount}
-                                                onClick={() => setBalanceForm({ amount: amount.toString() })}
-                                                className="btn btn-outline"
+                                                onClick={() => handleAmountChange(amount.toString())}
+                                                className="btn btn-outline text-sm"
+                                                type="button"
                                             >
-                                                ${amount}
+                                                {amount} ETB
                                             </button>
                                         ))}
+                                    </div>
+                                </div>
+
+                                {/* Payment Methods */}
+                                <div className="mt-8">
+                                    <h3 className="font-semibold mb-4">
+                                        <i className="fas fa-payment mr-2"></i>
+                                        Available Payment Methods
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-lg">
+                                            <div className="text-center">
+                                                <i className="fas fa-mobile-alt text-2xl text-blue-400 mb-2"></i>
+                                                <h4 className="font-semibold text-blue-400">Mobile Money</h4>
+                                                <p className="text-sm text-muted-foreground">
+                                                    Telebirr, M-Birr, CBE Birr
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-lg">
+                                            <div className="text-center">
+                                                <i className="fas fa-credit-card text-2xl text-green-400 mb-2"></i>
+                                                <h4 className="font-semibold text-green-400">Cards</h4>
+                                                <p className="text-sm text-muted-foreground">
+                                                    Visa, Mastercard
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-lg">
+                                            <div className="text-center">
+                                                <i className="fas fa-university text-2xl text-purple-400 mb-2"></i>
+                                                <h4 className="font-semibold text-purple-400">Bank Transfer</h4>
+                                                <p className="text-sm text-muted-foreground">
+                                                    All major Ethiopian banks
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* How it Works */}
+                                <div className="mt-8">
+                                    <h3 className="font-semibold mb-4">
+                                        <i className="fas fa-info-circle mr-2"></i>
+                                        How it Works
+                                    </h3>
+                                    <div className="bg-gray-500/10 p-4 rounded-lg">
+                                        <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
+                                            <li>Enter the amount you want to add to your wallet</li>
+                                            <li>Click "Pay via Chapa" to initialize secure payment</li>
+                                            <li>You'll be redirected to Chapa's secure checkout</li>
+                                            <li>Choose your preferred payment method and pay</li>
+                                            <li>Your balance will be updated automatically after payment</li>
+                                            <li>Return to your account with updated balance</li>
+                                        </ol>
                                     </div>
                                 </div>
                             </div>

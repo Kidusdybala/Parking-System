@@ -5,13 +5,36 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PaymentProof;
 use App\Models\User;
+use App\Services\ChapaService;
 use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
+    private $chapaService;
+
+    public function __construct(ChapaService $chapaService)
+    {
+        $this->chapaService = $chapaService;
+    }
+
     public function showTopupPage()
     {
-        return view('client.profile.topup');
+        $user = Auth::user();
+        $recentTransactions = $user->chapaTransactions()->latest()->take(5)->get();
+        
+        return view('client.profile.topup', compact('user', 'recentTransactions'));
+    }
+
+    /**
+     * Show enhanced payment options page with both Chapa and manual upload
+     */
+    public function showPaymentOptionsPage()
+    {
+        $user = Auth::user();
+        $recentChapaTransactions = $user->chapaTransactions()->latest()->take(5)->get();
+        $recentPaymentProofs = PaymentProof::where('user_id', $user->id)->latest()->take(5)->get();
+        
+        return view('client.profile.payment-options', compact('user', 'recentChapaTransactions', 'recentPaymentProofs'));
     }
 
     public function uploadPaymentProofPage()
