@@ -11,7 +11,7 @@
 [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 
-**A comprehensive, full-stack parking management solution with real-time reservations, payment integration, and intelligent spot recommendations.**
+**A comprehensive, full-stack parking management solution with real-time reservations, payment integration**
 
 **🏗️ Architecture**: Separated Frontend & Backend for better maintainability and scalability.
 
@@ -49,8 +49,7 @@
 ### 🎯 Core Functionality
 - **Real-time Parking Management** - Live parking spot availability tracking
 - **Smart Reservations** - Advanced booking system with time-based reservations
-- **Intelligent Recommendations** - AI-powered parking spot suggestions
-- **Multi-role Access Control** - User, Admin, and Super Admin roles
+- **Multi-role Access Control** - User, Admin.
 - **Payment Integration** - Chapa payment gateway integration
 - **Email Verification** - Secure user registration with email confirmation
 
@@ -848,12 +847,11 @@ copies or substantial portions of the Software.
 
 **Made with ❤️ by the MikiPark Team**
 
-[⭐ Star this repo](https://github.com/your-username/MikiPark) • [🐛 Report Bug](https://github.com/your-username/MikiPark/issues) • [💡 Request Feature](https://github.com/your-username/MikiPark/issues)
 
 **Connect with us:**
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/your-username)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/your-profile)
-[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/your-handle)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/kidusdybala)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/[kiudusadugna](https://www.linkedin.com/in/kidusadugna/))
+
 
 ---
 
