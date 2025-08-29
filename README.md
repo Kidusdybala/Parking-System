@@ -68,15 +68,33 @@
 ### 🏠 Landing Page
 *The welcoming interface that introduces users to MikiPark's features*
 
-### 📊 Dashboard
+### 🔐 User Authentication
+*Secure login system with modern UI design*
+<img src="frontend/public/images/Login.png" alt="Login Page" width="600" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+
+### � Dashboard
 *Real-time parking spot availability and user statistics*
 <img src="backend/public/images/inside-parking.jpg" alt="Dashboard Preview" width="600" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 
 ### 🅿️ Parking Management
 *Interactive parking spot selection and reservation system*
+<img src="frontend/public/images/Parking page.png" alt="Parking Management" width="600" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 
-### 👤 User Profile
+### 👤 User Profile & Wallet
 *Account management and payment method configuration*
+<img src="frontend/public/images/topup page.png" alt="User Profile" width="600" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+
+### 👑 Admin Dashboard
+*Comprehensive admin panel for system management*
+
+#### 📈 Analytics & Reports
+<img src="frontend/public/images/admin analytics page.png" alt="Admin Analytics" width="600" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+
+#### ⚙️ System Management
+<img src="frontend/public/images/admin managment page.png" alt="Admin Management" width="600" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+
+#### 💰 Payment Management
+<img src="frontend/public/images/admin payment page.png" alt="Admin Payments" width="600" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 
 </div>
 

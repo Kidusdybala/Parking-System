@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # Laravel Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=parking_system
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+    depends_on:
+      - mysql
+    volumes:
+      - ./backend:/var/www/html
+    networks:
+      - parking-network
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - parking-network
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=parking_system
+      - MYSQL_USER=parking_user
+      - MYSQL_PASSWORD=parking_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - parking-network
+
+  # Redis (optional, for caching/queues)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - parking-network
+
+volumes:
+  mysql_data:
+
+networks:
+  parking-network:
+    driver: bridge

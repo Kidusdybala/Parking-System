@@ -1,40 +1,26 @@
 {
-    "name": "parking-system",
+    "name": "parking-system-monorepo",
     "version": "1.0.0",
-    "description": "Full-stack Parking Management System",
+    "description": "Parking Management System - Frontend & Backend Monorepo",
     "private": true,
-    "type": "module",
+    "workspaces": [
+        "frontend",
+        "backend"
+    ],
     "scripts": {
         "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" --names \"BACKEND,FRONTEND\" --prefix-colors \"green,blue\"",
-        "dev:backend": "php artisan serve --host=127.0.0.1 --port=8000",
-        "dev:frontend": "vite",
-        "dev:integrated": "vite build && php artisan serve --host=127.0.0.1 --port=8000",
-        "install:all": "composer install && npm install",
-        "install:backend": "composer install",
-        "install:frontend": "npm install",
-        "build": "vite build",
-        "build:watch": "vite build --watch",
-        "test:backend": "php artisan test",
-        "migrate": "php artisan migrate",
-        "migrate:fresh": "php artisan migrate:fresh --seed",
-        "seed": "php artisan db:seed"
+        "dev:backend": "cd backend && npm run dev",
+        "dev:frontend": "cd frontend && npm run dev",
+        "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+        "build:frontend": "cd frontend && npm run build",
+        "start:backend": "cd backend && npm run dev",
+        "start:frontend": "cd frontend && npm run dev",
+        "test:backend": "cd backend && npm run test",
+        "migrate": "cd backend && npm run migrate",
+        "migrate:fresh": "cd backend && npm run migrate:fresh",
+        "seed": "cd backend && npm run seed"
     },
     "devDependencies": {
-        "@tailwindcss/forms": "^0.5.2",
-        "alpinejs": "^3.4.2",
-        "autoprefixer": "^10.4.2",
-        "axios": "^1.11.0",
-        "concurrently": "^9.0.1",
-        "laravel-vite-plugin": "^1.0",
-        "postcss": "^8.4.31",
-        "tailwindcss": "^3.1.0",
-        "vite": "^6.0"
-    },
-    "dependencies": {
-        "@vitejs/plugin-react": "^4.7.0",
-        "js-cookie": "^3.0.5",
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1",
-        "react-router-dom": "^7.8.1"
+        "concurrently": "^9.0.1"
     }
 }
