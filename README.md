@@ -863,12 +863,11 @@ copies or substantial portions of the Software.
 
 ### 🙏 Thank You for Using MikiPark!
 
-**Made with ❤️ by the MikiPark Team**
-
+**Made with dedication by the MikiPark Team**
 
 **Connect with us:**
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/kidusdybala)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/[kiudusadugna](https://www.linkedin.com/in/kidusadugna/))
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Kidusdybala)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/kidusadugna/)
 
 
 ---
