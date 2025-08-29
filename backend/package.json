@@ -1,0 +1,17 @@
+{
+    "name": "parking-system-backend",
+    "version": "1.0.0",
+    "description": "Laravel Backend API for Parking Management System",
+    "private": true,
+    "scripts": {
+        "dev": "php artisan serve --host=127.0.0.1 --port=8000",
+        "test": "php artisan test",
+        "migrate": "php artisan migrate",
+        "migrate:fresh": "php artisan migrate:fresh --seed",
+        "seed": "php artisan db:seed",
+        "key:generate": "php artisan key:generate",
+        "jwt:secret": "php artisan jwt:secret",
+        "install": "composer install",
+        "update": "composer update"
+    }
+}

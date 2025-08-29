@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Favicon</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .favicon-canvas {
+            border: 2px solid #ccc;
+            background: white;
+            margin: 20px 0;
+        }
+        .preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        .icon {
+            width: 32px;
+            height: 32px;
+            background: #000;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        .icon-16 {
+            width: 16px;
+            height: 16px;
+            font-size: 12px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+    </style>
+</head>
+<body>
+    <h1>MikiPark Favicon Creator</h1>
+    <p>This page helps create a favicon with a white "P" on black background.</p>
+    
+    <div class="preview">
+        <div class="icon icon-16">P</div>
+        <div>16x16</div>
+    </div>
+    
+    <div class="preview">
+        <div class="icon">P</div>
+        <div>32x32</div>
+    </div>
+    
+    <canvas id="favicon-canvas" class="favicon-canvas" width="32" height="32"></canvas>
+    
+    <div>
+        <button onclick="createFavicon(16)">Create 16x16</button>
+        <button onclick="createFavicon(32)">Create 32x32</button>
+        <button onclick="downloadFavicon()">Download as PNG</button>
+    </div>
+    
+    <div id="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Click "Create 32x32" to generate the favicon</li>
+            <li>Right-click on the canvas and "Save image as..." to save as PNG</li>
+            <li>Use an online converter to convert PNG to ICO format</li>
+            <li>Replace the favicon.ico file in the public folder</li>
+        </ol>
+    </div>
+
+    <script>
+        function createFavicon(size) {
+            const canvas = document.getElementById('favicon-canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Black background
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, size, size);
+            
+            // White "P"
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `bold ${Math.floor(size * 0.7)}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('P', size / 2, size / 2);
+        }
+        
+        function downloadFavicon() {
+            const canvas = document.getElementById('favicon-canvas');
+            const link = document.createElement('a');
+            link.download = 'favicon.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        // Create initial favicon
+        createFavicon(32);
+    </script>
+</body>
+</html>

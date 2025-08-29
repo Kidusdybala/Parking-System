@@ -1,0 +1,16 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-CXQOPo-q.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/index.jsx": {
+    "file": "assets/index-YB8128BF.js",
+    "name": "index",
+    "src": "resources/js/index.jsx",
+    "isEntry": true,
+    "css": [
+      "assets/app-CXQOPo-q.css"
+    ]
+  }
+}
