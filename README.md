@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="backend/public/images/logo.svg" alt="MikiPark Logo" width="120" height="120">
+
 # 🅿️ MikiPark - Smart Parking Management System
 
 [![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
@@ -7,10 +9,22 @@
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 
 **A comprehensive, full-stack parking management solution with real-time reservations, payment integration, and intelligent spot recommendations.**
 
+**🏗️ Architecture**: Separated Frontend & Backend for better maintainability and scalability.
+
 [🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🛠️ API Reference](#-api-reference) • [🤝 Contributing](#-contributing)
+
+---
+
+## 📸 Project Preview
+
+<div align="center">
+  <img src="backend/public/images/inside-parking.jpg" alt="MikiPark Parking Facility" width="800" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+  <p><em>Modern parking facility managed by MikiPark</em></p>
+</div>
 
 </div>
 
@@ -48,60 +62,99 @@
 - **PDF Generation** - Automated receipt and report generation
 - **CORS Support** - Cross-origin resource sharing enabled
 
+## 🎨 Screenshots
+
+<div align="center">
+
+### 🏠 Landing Page
+*The welcoming interface that introduces users to MikiPark's features*
+
+### 📊 Dashboard
+*Real-time parking spot availability and user statistics*
+<img src="backend/public/images/inside-parking.jpg" alt="Dashboard Preview" width="600" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+
+### 🅿️ Parking Management
+*Interactive parking spot selection and reservation system*
+
+### 👤 User Profile
+*Account management and payment method configuration*
+
+</div>
+
 ## 🏗️ Architecture
 
-### System Overview
+### 🖼️ System Overview
+
+<div align="center">
+  <img src="backend/public/images/logo.svg" alt="MikiPark Architecture" width="80" style="opacity: 0.7;">
+</div>
+
 ```mermaid
 graph TB
-    A[React Frontend] --> B[Laravel API Backend]
-    B --> C[MySQL Database]
-    B --> D[JWT Authentication]
-    B --> E[Chapa Payment Gateway]
-    B --> F[Email Service]
+    A[⚛️ React Frontend] --> B[🐘 Laravel API Backend]
+    B --> C[🗄️ MySQL Database]
+    B --> D[🔐 JWT Authentication]
+    B --> E[💳 Chapa Payment Gateway]
+    B --> F[📧 Email Service]
 
-    subgraph "Frontend Stack"
-        A1[React 18]
-        A2[Vite]
-        A3[TailwindCSS]
-        A4[React Router]
-        A5[Axios]
+    subgraph "🎨 Frontend Stack"
+        A1[⚛️ React 18]
+        A2[⚡ Vite]
+        A3[🎨 TailwindCSS]
+        A4[🧭 React Router]
+        A5[📡 Axios]
+        A6[🌐 Port: 5173]
     end
 
-    subgraph "Backend Stack"
-        B1[Laravel 11]
-        B2[PHP 8.2+]
-        B3[JWT Auth]
-        B4[Eloquent ORM]
-        B5[Laravel Sanctum]
+    subgraph "⚙️ Backend Stack"
+        B1[🐘 Laravel 11]
+        B2[🐘 PHP 8.2+]
+        B3[🔐 JWT Auth]
+        B4[📊 Eloquent ORM]
+        B5[🔌 RESTful API]
+        B6[🌐 Port: 8000]
+    end
+
+    subgraph "🏗️ Infrastructure"
+        C1[🐳 Docker Compose]
+        C2[🗄️ MySQL 8.0]
+        C3[🔴 Redis]
+        C4[🌐 Nginx/Apache]
     end
 ```
 
 ### Project Structure
 ```
 MikiPark/
-├── 📁 app/                    # Laravel application core
-│   ├── Http/Controllers/Api/  # API controllers
-│   ├── Models/               # Eloquent models
-│   ├── Services/             # Business logic services
-│   └── Mail/                 # Email templates
-├── 📁 config/                # Configuration files
-├── 📁 database/              # Migrations, seeders, factories
-│   ├── migrations/           # Database schema
-│   └── seeders/              # Sample data
-├── 📁 resources/             # Frontend resources
-│   ├── js/                   # React application
-│   │   ├── components/       # Reusable components
+├── 📁 frontend/              # React Frontend Application
+│   ├── 📁 src/               # React source code
+│   │   ├── components/       # Reusable React components
 │   │   ├── pages/            # Page components
 │   │   ├── contexts/         # React contexts
-│   │   └── services/         # API services
-│   ├── css/                  # Stylesheets
-│   └── views/                # Blade templates
-├── 📁 routes/                # Route definitions
-│   ├── api.php              # API routes
-│   └── web.php              # Web routes
-├── 📁 public/                # Public assets
-├── 📁 storage/               # File storage
-└── 📁 tests/                 # Test suites
+│   │   ├── hooks/            # Custom React hooks
+│   │   └── services/         # API service functions
+│   ├── package.json          # Frontend dependencies
+│   ├── vite.config.js        # Vite configuration
+│   ├── tailwind.config.js    # Tailwind CSS config
+│   └── Dockerfile            # Frontend Docker config
+├── 📁 backend/               # Laravel Backend API
+│   ├── 📁 app/               # Laravel application core
+│   │   ├── Http/Controllers/Api/  # API controllers
+│   │   ├── Models/           # Eloquent models
+│   │   ├── Services/         # Business logic services
+│   │   └── Mail/             # Email templates
+│   ├── 📁 config/            # Laravel configuration
+│   ├── 📁 database/          # Migrations, seeders, factories
+│   ├── 📁 routes/            # API route definitions
+│   ├── 📁 public/            # Public assets
+│   ├── 📁 storage/           # File storage
+│   ├── 📁 tests/             # Backend test suites
+│   ├── composer.json         # PHP dependencies
+│   ├── artisan              # Laravel CLI tool
+│   └── Dockerfile            # Backend Docker config
+├── 📁 docker-compose.yml     # Docker orchestration
+├── 📁 package.json           # Root monorepo scripts
+└── 📁 README.md              # Project documentation
 ```
 
 ## 🚀 Quick Start
@@ -112,18 +165,48 @@ MikiPark/
 - [ ] **Node.js 18+** - [Download Node.js](https://nodejs.org/)
 - [ ] **MySQL/SQLite** - Database server
 - [ ] **Git** - Version control
+- [ ] **Docker & Docker Compose** (optional, for containerized setup)
 
-### One-Command Setup
+### Development Setup
+
+#### Option 1: Manual Setup (Recommended for Development)
 ```bash
-# Clone and setup the entire project
+# 1. Clone the repository
 git clone https://github.com/your-username/MikiPark.git
 cd MikiPark
-npm run install:all && npm run migrate:fresh && npm run dev
+
+# 2. Install all dependencies
+npm run install:all
+
+# 3. Set up backend environment
+cd backend
+cp .env.example .env
+php artisan key:generate
+php artisan jwt:secret
+php artisan migrate:fresh --seed
+cd ..
+
+# 4. Start both services
+npm run dev
 ```
 
-🎉 **That's it!** Your application will be running at:
+#### Option 2: Docker Setup (Recommended for Production/Testing)
+```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/MikiPark.git
+cd MikiPark
+
+# 2. Start all services with Docker Compose
+docker-compose up -d
+
+# 3. Run database migrations
+docker-compose exec backend php artisan migrate:fresh --seed
+```
+
+🎉 **Your application will be running at:**
 - **Frontend**: http://localhost:5173
-- **Backend API**: http://127.0.0.1:8000
+- **Backend API**: http://localhost:8000
+- **Database**: localhost:3306
 
 ## 📦 Installation
 
@@ -759,6 +842,8 @@ copies or substantial portions of the Software.
 
 <div align="center">
 
+<img src="backend/public/images/logo.svg" alt="MikiPark Logo" width="60" height="60" style="opacity: 0.8;">
+
 ### 🙏 Thank You for Using MikiPark!
 
 **Made with ❤️ by the MikiPark Team**
@@ -769,6 +854,13 @@ copies or substantial portions of the Software.
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/your-username)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/your-profile)
 [![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/your-handle)
+
+---
+
+<div align="center">
+  <p><strong>🚀 Ready to revolutionize parking management?</strong></p>
+  <p><em>Experience the future of smart parking with MikiPark</em></p>
+</div>
 
 </div>
 ```
